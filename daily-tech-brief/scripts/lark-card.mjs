@@ -65,7 +65,7 @@ export function buildLarkCard(issue, { imageKey } = {}) {
       tag: "div",
       text: {
         tag: "lark_md",
-        content: `**可以变成你的选题**\n${issue.topic}`,
+        content: `**今日延伸选题**\n${issue.topic}`,
       },
     },
     {

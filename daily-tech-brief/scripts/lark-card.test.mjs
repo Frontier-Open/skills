@@ -20,6 +20,8 @@ test("renders a compact Feishu card with an uploaded cover", () => {
   assert.equal(card.elements[0].img_key, "img_v3_test");
   assert.equal(card.elements.at(-2).actions[0].url, issue.canonical_url);
   assert.match(card.elements[2].fields[0].text.content, /\*\*4\*\*/u);
+  assert.match(card.elements.at(-3).text.content, /今日延伸选题/u);
+  assert.doesNotMatch(JSON.stringify(card), /玉婷|你的选题/u);
 });
 
 test("omits the cover when no image key is supplied", () => {

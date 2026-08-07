@@ -44,7 +44,7 @@ Produce a short editorial briefing, not a copied ranking. Keep every claim trace
    node scripts/render-archive.mjs --public-dir public --out public/index.html
    ```
 
-11. Preview the homepage and issue at both desktop and a 430 px mobile viewport when browser tooling is available. Reject horizontal overflow, clipped text, or multi-line section labels caused by layout constraints.
+11. Preview the homepage and issue at desktop plus 383 px and 430 px mobile viewports when browser tooling is available. Reject horizontal overflow, clipped text, or multi-line section labels caused by layout constraints. Keep section numbers on one line and align each section note with its title.
 12. For Feishu/Lark delivery, read [lark-delivery.md](references/lark-delivery.md), upload the issue image, and render the card with `scripts/render-lark-card.mjs`.
 13. Separate generation from outward actions. Before sending, confirm the destination, exact card, and sending identity. Preserve existing hosting architecture and dated URLs.
 
