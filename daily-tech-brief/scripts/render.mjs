@@ -63,8 +63,14 @@ const signalCards = issue.signals.map((item, index) => {
 
 const repoRows = issue.repositories.map((item, index) => {
   const url = absoluteUrl(item.url, `repositories[${index}].url`);
+  const note = item.metric_note || item.source || "";
+  const dailyMetric = /^today\s*·\s*(.+)$/iu.exec(note);
+  const hasStar = /★/u.test(item.metric || "");
+  const metricValue = (item.metric || "").replace(/\s*★\s*/gu, "").trim();
   const metric = item.metric
-    ? `<div class="repo-stat"><strong>${escapeHtml(item.metric)}</strong><small>${escapeHtml(item.metric_note || item.source || "")}</small></div>`
+    ? dailyMetric
+      ? `<div class="repo-stat"><div class="repo-today"><strong>${escapeHtml(metricValue)}${hasStar ? ` <span class="repo-star">★</span>` : ""}</strong><span class="repo-period">today</span></div><small>${escapeHtml(dailyMetric[1])}</small></div>`
+      : `<div class="repo-stat"><strong>${escapeHtml(item.metric)}</strong><small>${escapeHtml(note)}</small></div>`
     : "";
   return `<a class="repo" href="${escapeHtml(url)}"><div class="repo-index">${String(index + 1).padStart(2, "0")}</div><div><h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.summary)}</p></div>${metric}</a>`;
 }).join("");
