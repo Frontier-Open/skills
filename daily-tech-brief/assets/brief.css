@@ -78,8 +78,8 @@ h1 em { color: var(--accent); font-style: normal; }
   margin-bottom: 20px;
 }
 .section-no { grid-area: number; font-size: 13px; line-height: 1.2; white-space: nowrap; }
-.section h2 { grid-area: title; margin: 0; font-size: 27px; font-weight: 830; letter-spacing: -0.025em; line-height: 1.2; }
-.section-note { grid-area: note; color: var(--ink3); font-size: 12px; line-height: 1.45; }
+.section h2 { grid-area: title; margin: 0; font-size: 27px; font-weight: 830; letter-spacing: -0.025em; line-height: 1.2; transform: translateY(-1px); }
+.section-note { grid-area: note; color: var(--ink3); font-size: 12px; line-height: 1.45; transform: translateY(-1px); }
 
 .signal-grid, .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .signal { min-height: 300px; padding: 30px; border: 1px solid var(--line); border-radius: 22px; background: rgba(255, 255, 255, 0.92); }
