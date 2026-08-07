@@ -65,7 +65,7 @@ export function buildLarkCard(issue, { imageKey } = {}) {
       tag: "div",
       text: {
         tag: "lark_md",
-        content: `**今日延伸选题**\n${issue.topic}`,
+        content: `**今日思考**\n${issue.topic}`,
       },
     },
     {
@@ -79,15 +79,6 @@ export function buildLarkCard(issue, { imageKey } = {}) {
             content: "阅读全文 · 约 10 分钟",
           },
           url: issue.canonical_url,
-        },
-      ],
-    },
-    {
-      tag: "note",
-      elements: [
-        {
-          tag: "plain_text",
-          content: `Techmeme · daily.dev · GitHub Trending · HelloGitHub · Product Hunt｜${issue.generated_at}`,
         },
       ],
     },
