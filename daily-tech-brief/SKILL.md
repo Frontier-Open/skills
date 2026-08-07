@@ -38,9 +38,15 @@ Produce a short editorial briefing, not a copied ranking. Keep every claim trace
    ```
 
 9. Copy a 1.9:1 issue preview image to `public/YYYY-MM-DD/og.png`. Keep its URL date-specific so Feishu does not reuse an older cached preview.
-10. Preview at both desktop and a 430 px mobile viewport when browser tooling is available. Reject horizontal overflow, clipped text, or multi-line section labels caused by layout constraints.
-11. For Feishu/Lark delivery, read [lark-delivery.md](references/lark-delivery.md), upload the issue image, and render the card with `scripts/render-lark-card.mjs`.
-12. Separate generation from outward actions. Before sending, confirm the destination, exact card, and sending identity. Preserve existing hosting architecture and dated URLs.
+10. Rebuild the archive homepage after adding the issue:
+
+   ```bash
+   node scripts/render-archive.mjs --public-dir public --out public/index.html
+   ```
+
+11. Preview the homepage and issue at both desktop and a 430 px mobile viewport when browser tooling is available. Reject horizontal overflow, clipped text, or multi-line section labels caused by layout constraints.
+12. For Feishu/Lark delivery, read [lark-delivery.md](references/lark-delivery.md), upload the issue image, and render the card with `scripts/render-lark-card.mjs`.
+13. Separate generation from outward actions. Before sending, confirm the destination, exact card, and sending identity. Preserve existing hosting architecture and dated URLs.
 
 ## Editorial decisions
 
@@ -61,6 +67,7 @@ work/raw.json                 collected candidates and source warnings
 issue.json                    curated, sourced issue data
 public/YYYY-MM-DD/index.html  canonical dated issue
 public/YYYY-MM-DD/og.png      issue-specific link-preview image
+public/index.html             generated archive homepage
 lark-card.json                send-ready Feishu card after image-key injection
 ```
 
@@ -69,7 +76,8 @@ Use `assets/issue.example.json` as a structural starter, not as content. `assets
 ## Publication rules
 
 - Keep `/YYYY-MM-DD/` permanent after publication.
-- Make `/` redirect to the newest issue.
+- Make `/` an archive homepage with a prominent latest issue and month-grouped dated issues.
+- Link each dated issue back to `/` so readers can reach the archive from a shared issue URL.
 - Set a canonical URL and social-preview metadata for the dated page.
 - If the briefing is private-by-link, add `noindex,nofollow,noarchive`. Allow preview crawlers in `robots.txt`; otherwise Feishu may not read the page metadata. Clarify that this is not access control.
 - Do not expose API keys, browser state, access tokens, or service credentials in output, logs, Git, or HTML.
