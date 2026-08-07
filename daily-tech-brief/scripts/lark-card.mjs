@@ -12,9 +12,13 @@ function countField(count, label) {
   };
 }
 
-export function buildLarkCard(issue, { imageKey } = {}) {
+export function buildLarkCard(issue, { imageKey, documentUrl } = {}) {
   if (!issue?.date || !issue?.headline || !issue?.canonical_url) {
     throw new Error("Issue requires date, headline, and canonical_url");
+  }
+
+  if (!/^https:\/\/[^/]+\/(?:docx|wiki)\/[A-Za-z0-9_-]+/u.test(documentUrl || "")) {
+    throw new Error("A valid Feishu cloud-document URL is required");
   }
 
   const highlights = issue.signals
@@ -64,7 +68,7 @@ export function buildLarkCard(issue, { imageKey } = {}) {
       tag: "div",
       text: {
         tag: "lark_md",
-        content: `**今日思考**\n${issue.topic}`,
+        content: `**04 · 今日思考**\n${issue.topic}`,
       },
     },
     {
@@ -75,7 +79,16 @@ export function buildLarkCard(issue, { imageKey } = {}) {
           type: "primary",
           text: {
             tag: "plain_text",
-            content: `阅读全文 · 约 ${issue.dek.match(/\d+\s*分钟/u)?.[0]?.replace(/\s/gu, "") || "15分钟"}`,
+            content: "飞书文字版",
+          },
+          url: documentUrl,
+        },
+        {
+          tag: "button",
+          type: "default",
+          text: {
+            tag: "plain_text",
+            content: `查看网页版 · ${issue.dek.match(/\d+\s*分钟/u)?.[0]?.replace(/\s/gu, "") || "10分钟"}`,
           },
           url: issue.canonical_url,
         },

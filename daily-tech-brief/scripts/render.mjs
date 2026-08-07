@@ -41,8 +41,9 @@ for (const key of ["signals", "repositories", "products", "warnings"]) {
   if (!Array.isArray(issue[key])) throw new Error(`${key} must be an array`);
 }
 if (issue.signals.length < 1 || issue.signals.length > 6) throw new Error("signals must contain 1-6 items");
-if (issue.repositories.length !== 5) throw new Error("repositories must contain 5 relevance-ranked items");
-if (issue.products.length !== 5) throw new Error("products must contain 5 curated items");
+if (issue.signals.length !== 4) throw new Error("signals must contain 4 curated items");
+if (issue.repositories.length !== 4) throw new Error("repositories must contain 4 relevance-ranked items");
+if (issue.products.length !== 2) throw new Error("products must contain 2 curated items");
 
 const canonical = absoluteUrl(issue.canonical_url, "canonical_url");
 if (!canonical.endsWith("/")) throw new Error("canonical_url must end with /");
@@ -146,12 +147,13 @@ ${css}
           <div class="section-head">
             <div class="section-no">03 / SHIP</div>
             <h2>Product Hunt 今日精选</h2>
-            <div class="section-note">从官方 Feed 候选中筛选 5 条；不按榜单照搬</div>
+            <div class="section-note">从官方 Feed 候选中筛选 2 条；不按榜单照搬</div>
           </div>
           <div class="product-grid">${productCards}</div>
         </section>
         <aside class="action">
-          <div class="action-label">今日思考</div>
+          <div class="action-no">04 / THINK</div>
+          <h2>今日思考</h2>
           <p>${escapeHtml(issue.topic)}</p>
         </aside>
       </main>

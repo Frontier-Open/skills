@@ -59,7 +59,7 @@ issues.sort((a, b) => b.date.localeCompare(a.date));
 if (!issues.length) throw new Error(`No hierarchical dated issues found in ${publicDir}`);
 
 const latest = issues[0];
-const latestMinutes = latest.description.match(/\d+\s*分钟/u)?.[0]?.replace(/\s/gu, "") || "15分钟";
+const latestMinutes = latest.description.match(/\d+\s*分钟/u)?.[0]?.replace(/\s/gu, "") || "10分钟";
 const dateParts = (date) => {
   const parsed = new Date(`${date}T00:00:00Z`);
   return {

@@ -12,6 +12,7 @@ const valueOf = (flag) => {
 const issuePath = resolve(valueOf("--issue") || "issue.json");
 const outputPath = resolve(valueOf("--out") || "lark-card.json");
 const imageKey = valueOf("--image-key");
+const documentUrl = valueOf("--document-url");
 const withoutImage = args.includes("--without-image");
 
 if (!imageKey && !withoutImage) {
@@ -20,8 +21,11 @@ if (!imageKey && !withoutImage) {
 if (imageKey && !/^img_/u.test(imageKey)) {
   throw new Error("--image-key must be a Feishu image key beginning with img_");
 }
+if (!documentUrl) {
+  throw new Error("Pass --document-url after creating and verifying the Feishu cloud document");
+}
 
 const issue = JSON.parse(await readFile(issuePath, "utf8"));
-const card = buildLarkCard(issue, { imageKey });
+const card = buildLarkCard(issue, { imageKey, documentUrl });
 await writeFile(outputPath, `${JSON.stringify(card, null, 2)}\n`, "utf8");
 console.log(`Rendered ${outputPath}`);

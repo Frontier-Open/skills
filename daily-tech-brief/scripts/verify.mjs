@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { access, readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
+import { findIssueDuplicates } from "./history.mjs";
 
 const args = process.argv.slice(2);
 const valueOf = (flag) => {
@@ -14,6 +15,10 @@ const issue = JSON.parse(await readFile(issuePath, "utf8"));
 const html = await readFile(htmlPath, "utf8");
 
 const errors = [];
+if (issue.signals.length !== 4) errors.push("signals must contain exactly 4 curated items");
+if (issue.repositories.length !== 4) errors.push("repositories must contain exactly 4 curated items");
+if (issue.products.length !== 2) errors.push("products must contain exactly 2 curated items");
+errors.push(...findIssueDuplicates(issue));
 for (const text of [issue.brand, issue.headline, issue.topic, issue.canonical_url]) {
   if (!html.includes(String(text).replace(/&/gu, "&amp;").replace(/</gu, "&lt;").replace(/>/gu, "&gt;").replace(/"/gu, "&quot;").replace(/'/gu, "&#39;"))) {
     errors.push(`Rendered HTML is missing: ${text}`);
@@ -22,6 +27,7 @@ for (const text of [issue.brand, issue.headline, issue.topic, issue.canonical_ur
 if (!html.includes('name="robots" content="noindex,nofollow,noarchive"')) errors.push("Missing private-by-link robots metadata");
 if (!/@media\s*\(max-width:\s*800px\)/u.test(html)) errors.push("Missing mobile layout rules");
 if (issue.products.length && !html.includes('class="product-heading"')) errors.push("Missing Product Hunt icon/title rows");
+if (!html.includes("04 / THINK") || !html.includes("今日思考")) errors.push("Missing numbered 04 / THINK section");
 
 for (const [index, product] of issue.products.entries()) {
   if (!/^\.\/[A-Za-z0-9][A-Za-z0-9._-]*\.(?:avif|jpe?g|png|svg|webp)$/u.test(product.icon || "")) {

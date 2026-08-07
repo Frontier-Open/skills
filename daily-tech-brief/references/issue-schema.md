@@ -10,7 +10,7 @@
   "canonical_url": "https://brief.example.com/2026/08/07/",
   "brand": "CLAIRE'S MORNING SIGNALS",
   "headline": "One editorial thesis",
-  "dek": "12 分钟读完 · 14 条精选",
+  "dek": "10 分钟读完 · 10 条精选",
   "signals": [],
   "repositories": [],
   "products": [],
@@ -24,6 +24,7 @@
 ```json
 {
   "title": "Short Chinese title",
+  "dedupe_key": "stable-story-key",
   "source": "Techmeme · Bloomberg",
   "source_url": "https://...",
   "summary": "What happened",
@@ -37,6 +38,7 @@
 ```json
 {
   "name": "owner/repo",
+  "dedupe_key": "github:owner/repo",
   "url": "https://github.com/owner/repo",
   "summary": "What it does and why it matters",
   "stars_total": "4,837",
@@ -51,6 +53,7 @@
 ```json
 {
   "name": "Product name",
+  "dedupe_key": "producthunt:product-slug",
   "url": "https://...",
   "icon": "./product-name.png",
   "icon_source_url": "https://ph-files.imgix.net/...",
@@ -64,9 +67,11 @@
 ## Constraints
 
 - `signals`: 1-6 items.
-- `repositories`: exactly 5 items curated jointly from GitHub Trending and HelloGitHub.
-- `products`: exactly 5 curated items by default.
+- `repositories`: exactly 4 items curated jointly from GitHub Trending and HelloGitHub.
+- `products`: exactly 2 curated items by default.
 - Order `repositories` by reader relevance, not source rank or Star count.
+- Every signal, repository, and product needs a stable `dedupe_key`. Reuse the same key for the same underlying story or project even when its title, source, rank, or URL parameters change.
+- No `dedupe_key`, normalized canonical URL, or normalized title/name may match any prior issue in the versioned history.
 - All selected items need an absolute HTTP(S) URL.
 - Every product needs a local `./filename.ext` icon and an absolute `icon_source_url`.
 - `canonical_url` must use `/YYYY/MM/DD/` and end with `/`.

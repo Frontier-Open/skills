@@ -12,6 +12,13 @@ Use this as judgment support, not a fake numerical certainty:
 
 Prefer fewer, stronger items. Do not fill a quota with weak candidates.
 
+## Cross-issue uniqueness
+
+- Read the complete versioned issue history before final selection.
+- Never repeat a previously published article, story, repository, or product.
+- Treat a materially identical story as a repeat even when a different outlet, headline, ranking, or URL is used.
+- Use stable `dedupe_key` values and run `scripts/check-history.mjs` before publication. A failure blocks publishing and sending.
+
 ## Reader lens
 
 Default interests for Claire / 玉婷:

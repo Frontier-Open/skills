@@ -17,36 +17,49 @@ Produce a short editorial briefing, not a copied ranking. Keep every claim trace
    ```
 
    Continue when one source fails. Preserve its failure under `warnings`; do not silently replace it with stale data.
-3. Read [editorial-policy.md](references/editorial-policy.md). Read [issue-schema.md](references/issue-schema.md) before writing issue JSON.
+3. Read [editorial-policy.md](references/editorial-policy.md). Read [issue-schema.md](references/issue-schema.md) before writing issue JSON. Load every prior structured issue from the host briefing repository before selecting candidates.
 4. Curate a focused issue. Default composition:
    - 4 technology/business signals;
-   - 5 repositories selected jointly from GitHub Trending and HelloGitHub, ordered by reader relevance rather than source rank;
-   - 5 Product Hunt products selected from the wider feed;
+   - 4 repositories selected jointly from GitHub Trending and HelloGitHub, ordered by reader relevance rather than source rank;
+   - 2 Product Hunt products selected from the wider feed;
    - 1 actionable topic for the reader.
-5. Open or fetch the selected source pages when a summary depends on details not present in collected metadata. Prefer primary reporting links over aggregator permalinks when both are available.
-6. Write a valid `issue.json`. Attribute every item with `source`, `source_url`, and `why`. Include metrics only when the source exposes them explicitly. For every Product Hunt selection, download the real project icon from its Product Hunt page into the dated issue directory; store its local `./filename.ext` path as `icon` and the original asset URL as `icon_source_url`.
-7. Render the issue:
+5. Reject anything already published in a prior issue. Compare the candidate's canonical URL, normalized title/name, and required `dedupe_key` against the complete issue history. A repeated project, product, article, or materially identical story is not allowed even if its rank, metric, headline wording, or discovery source changed. Replace repeats before continuing.
+6. Open or fetch the selected source pages when a summary depends on details not present in collected metadata. Prefer primary reporting links over aggregator permalinks when both are available.
+7. Write a valid `issue.json`. Give every signal, repository, and product a stable `dedupe_key`. Attribute every item with its source fields. Include metrics only when the source exposes them explicitly. For every Product Hunt selection, download the real project icon from its Product Hunt page into the dated issue directory; store its local `./filename.ext` path as `icon` and the original asset URL as `icon_source_url`.
+8. Run the cross-issue duplicate gate before rendering. Point it at the versioned structured history in the host briefing repository:
+
+   ```bash
+   node scripts/check-history.mjs --issue issue.json --history-dir /path/to/brief/data/issues
+   ```
+
+   Any duplicate is a hard failure: do not publish or send.
+9. Render the HTML and Markdown editions:
 
    ```bash
    node scripts/render.mjs --issue issue.json --out public/2026/08/07/index.html
+   node scripts/render-markdown.mjs --issue issue.json --out public/2026/08/07/brief.md
    ```
 
-8. Verify structure and links:
+10. Verify structure and links:
 
    ```bash
    node scripts/verify.mjs --issue issue.json --html public/2026/08/07/index.html
    ```
 
-9. Copy a 1.9:1 issue preview image to `public/YYYY/MM/DD/og.png`. Keep its URL date-specific so Feishu does not reuse an older cached preview.
-10. Rebuild the archive homepage after adding the issue:
+11. Archive the final issue into the host repository's versioned structured history, then copy a 1.9:1 issue preview image to `public/YYYY/MM/DD/og.png`. Keep its URL date-specific so Feishu does not reuse an older cached preview.
+
+   ```bash
+   node scripts/archive-issue.mjs --issue issue.json --history-dir /path/to/brief/data/issues
+   ```
+12. Rebuild the archive homepage after adding the issue:
 
    ```bash
    node scripts/render-archive.mjs --public-dir public --out public/index.html
    ```
 
-11. Preview the homepage and issue at desktop plus 383 px, 430 px, 654 px, 660 px, 868 px, and 1024 px viewports when browser tooling is available. Reject horizontal overflow, clipped text, or multi-line section labels caused by layout constraints. Keep the header brand on one line and its dot perfectly circular. Stack every section heading as three left-aligned rows: section number, title, then note; do not use vertical transforms to align mixed scripts. Merge GitHub Trending and HelloGitHub into one five-item repository section ordered by reader relevance. In repository rows, align the numeric index to the visible title glyphs and show only the current total Star count; do not show daily growth, clicks, source labels, or secondary metric rows. Keep each Product Hunt icon and title in one flex row and use the real local project icon. Keep the reading-time summary beneath the main headline and left-align the `今日思考` content from the start of its card. Do not render a redundant source badge strip above the sections.
-12. For Feishu/Lark delivery, read [lark-delivery.md](references/lark-delivery.md), upload the issue image, and render the card with `scripts/render-lark-card.mjs`.
-13. Separate generation from outward actions. Before sending, confirm the destination, exact card, and sending identity. Preserve existing hosting architecture and dated URLs.
+13. Preview the homepage and issue at desktop plus 383 px, 430 px, 654 px, 660 px, 868 px, and 1024 px viewports when browser tooling is available. Reject horizontal overflow, clipped text, or multi-line section labels caused by layout constraints. Keep the header brand on one line and its dot perfectly circular. Stack every section heading as three left-aligned rows: section number, title, then note; do not use vertical transforms to align mixed scripts. Merge GitHub Trending and HelloGitHub into one four-item repository section ordered by reader relevance. In repository rows, align the numeric index to the visible title glyphs and show only the current total Star count; do not show daily growth, clicks, source labels, or secondary metric rows. Keep each Product Hunt icon and title in one flex row and use the real local project icon. Keep the reading-time summary beneath the main headline. Present the final prompt as a fourth section with `04 / THINK`, `今日思考`, and the topic aligned to the same left edge. Do not render a redundant source badge strip above the sections.
+14. For Feishu/Lark delivery, read [lark-delivery.md](references/lark-delivery.md). Create a Feishu cloud document from the generated `brief.md` using user identity, upload the issue image, and render the card with both the canonical webpage URL and the cloud-document URL.
+15. Separate generation from outward actions. Before sending, confirm the destination, exact card, both links, and sending identity. Preserve existing hosting architecture and dated URLs.
 
 ## Editorial decisions
 
@@ -57,7 +70,7 @@ Produce a short editorial briefing, not a copied ranking. Keep every claim trace
 - Treat daily.dev's public pages as public editorial input. A personalized daily.dev feed requires an authorized session; state when it was unavailable.
 - Treat Product Hunt's Atom feed as launch discovery. If votes or rank are unavailable, say “今日精选” or “值得关注”; never guess placement.
 - Timestamp volatile metrics, especially GitHub total Stars; keep `stars_today` only as collection input and do not render it.
-- Keep the rendered issue readable in about 12 minutes.
+- Keep the rendered issue readable in about 10 minutes. Ten selected items is the default ceiling, not a quota that permits weak or repeated content.
 
 ## Output contract
 
@@ -67,7 +80,9 @@ Keep these artifacts together:
 work/raw.json                 collected candidates and source warnings
 issue.json                    curated, sourced issue data
 public/YYYY/MM/DD/index.html  canonical dated issue
+public/YYYY/MM/DD/brief.md    generated Markdown text edition
 public/YYYY/MM/DD/og.png      issue-specific link-preview image
+data/issues/YYYY/MM/DD.json   versioned private history used by the duplicate gate
 public/YYYY/index.html        generated year archive
 public/YYYY/MM/index.html     generated month archive
 public/index.html             generated root archive
@@ -81,7 +96,7 @@ Use `assets/issue.example.json` as a structural starter, not as content. `assets
 - Keep `/YYYY/MM/DD/` permanent after publication. Redirect legacy `/YYYY-MM-DD/` links with HTTP 301.
 - Generate `/`, `/YYYY/`, and `/YYYY/MM/` archive pages after every issue.
 - Link each dated issue back to `/` so readers can reach the archive from a shared issue URL.
-- Keep the header date compact as `YYYY.MM.DD`; do not show a generation time there. Label the final editorial prompt `今日思考`.
+- Keep the header date compact as `YYYY.MM.DD`; do not show a generation time there. Label the final editorial prompt as section `04 / THINK` with title `今日思考`.
 - Keep the footer compact: show the update date and a short data-freshness note, not collection details or source limitations.
 - Name the site consistently as `Claire's Morning Signals` in both header and footer. Format Feishu card dates as `YYYY.MM.DD`, without Chinese year/month/day characters.
 - Render the Product Hunt project's real icon beside its title from a local dated asset; never substitute generated initials when a source icon is available.

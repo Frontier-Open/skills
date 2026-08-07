@@ -53,7 +53,7 @@ header, main, footer { position: relative; z-index: 1; }
 .dot { flex: 0 0 11px; width: 11px; height: 11px; border-radius: 50%; background: var(--hot); box-shadow: 0 0 0 7px rgba(255, 87, 51, 0.1); }
 .time { color: var(--ink3); text-align: right; white-space: nowrap; }
 .hero { padding: 68px 0 62px; }
-.eyebrow, .section-no, .source, .action-label {
+.eyebrow, .section-no, .source, .action-no {
   color: var(--accent);
   font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
   font-weight: 800;
@@ -111,7 +111,8 @@ h1 em { color: var(--accent); font-style: normal; }
 .product p { margin: 0; color: var(--ink2); font-size: 14px; line-height: 1.62; }
 
 .action { margin-top: 58px; padding: 32px 34px; border-radius: 24px; background: var(--soft); }
-.action-label { font-size: 12px; }
+.action-no { font-size: 12px; }
+.action h2 { margin: 10px 0 0; font-size: 27px; font-weight: 830; letter-spacing: -0.025em; line-height: 1.2; }
 .action p { margin: 14px 0 0; font-size: 23px; font-weight: 790; letter-spacing: -0.025em; line-height: 1.38; }
 footer { display: flex; justify-content: space-between; gap: 40px; margin-top: 46px; padding-top: 22px; border-top: 1px solid var(--line); color: var(--ink3); font: 10px/1.7 ui-monospace, monospace; }
 footer .right { max-width: 530px; text-align: right; }
