@@ -53,10 +53,14 @@
 {
   "name": "Product name",
   "url": "https://...",
+  "icon": "./product-name.png",
+  "icon_source_url": "https://ph-files.imgix.net/...",
   "summary": "What it does and why it matters",
   "source": "Product Hunt official feed"
 }
 ```
+
+`icon` is required for each selected product. Download the real Product Hunt project icon into the same dated directory as `index.html`; do not depend on a remote image at render time. Keep the original Product Hunt asset URL in `icon_source_url` for provenance.
 
 ## Constraints
 
@@ -64,5 +68,6 @@
 - `repositories`: 1-6 items.
 - `products`: 0-4 items.
 - All selected items need an absolute HTTP(S) URL.
+- Every product needs a local `./filename.ext` icon and an absolute `icon_source_url`.
 - `canonical_url` must use `/YYYY/MM/DD/` and end with `/`.
 - Store warnings as concise strings; never store secrets or raw authentication errors.

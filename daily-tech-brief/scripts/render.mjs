@@ -27,6 +27,13 @@ const absoluteUrl = (value, label) => {
   return url.toString();
 };
 
+const localImage = (value, label) => {
+  if (!/^\.\/[A-Za-z0-9][A-Za-z0-9._-]*\.(?:avif|jpe?g|png|svg|webp)$/u.test(value || "")) {
+    throw new Error(`${label} must be a local image next to the rendered issue`);
+  }
+  return value;
+};
+
 for (const key of ["date", "timezone", "generated_at", "canonical_url", "brand", "headline", "dek", "topic"]) {
   if (!issue[key]) throw new Error(`Missing ${key}`);
 }
@@ -64,7 +71,9 @@ const repoRows = issue.repositories.map((item, index) => {
 
 const productCards = issue.products.map((item, index) => {
   const url = absoluteUrl(item.url, `products[${index}].url`);
-  return `<a class="product" href="${escapeHtml(url)}"><span class="product-mark">${String(index + 1).padStart(2, "0")}</span><h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.summary)}</p></a>`;
+  const icon = localImage(item.icon, `products[${index}].icon`);
+  absoluteUrl(item.icon_source_url, `products[${index}].icon_source_url`);
+  return `<a class="product" href="${escapeHtml(url)}"><div class="product-heading"><img class="product-icon" src="${escapeHtml(icon)}" width="52" height="52" alt=""><h3>${escapeHtml(item.name)}</h3></div><p>${escapeHtml(item.summary)}</p></a>`;
 }).join("");
 
 const description = `${issue.dek}：科技商业、GitHub 热门项目与 Product Hunt 精选。`;
@@ -148,7 +157,7 @@ ${css}
         </aside>
       </main>
       <footer>
-        <div>Claire's Morning Signals</div>
+        <div>${escapeHtml(issue.brand)}</div>
         <div class="right">更新于 ${escapeHtml(displayDate)} · 榜单数据以发布时为准</div>
       </footer>
     </div>

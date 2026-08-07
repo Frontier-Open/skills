@@ -24,7 +24,7 @@ Produce a short editorial briefing, not a copied ranking. Keep every claim trace
    - 2 Product Hunt products;
    - 1 actionable topic for the reader.
 5. Open or fetch the selected source pages when a summary depends on details not present in collected metadata. Prefer primary reporting links over aggregator permalinks when both are available.
-6. Write a valid `issue.json`. Attribute every item with `source`, `source_url`, and `why`. Include metrics only when the source exposes them explicitly.
+6. Write a valid `issue.json`. Attribute every item with `source`, `source_url`, and `why`. Include metrics only when the source exposes them explicitly. For every Product Hunt selection, download the real project icon from its Product Hunt page into the dated issue directory; store its local `./filename.ext` path as `icon` and the original asset URL as `icon_source_url`.
 7. Render the issue:
 
    ```bash
@@ -44,7 +44,7 @@ Produce a short editorial briefing, not a copied ranking. Keep every claim trace
    node scripts/render-archive.mjs --public-dir public --out public/index.html
    ```
 
-11. Preview the homepage and issue at desktop plus 383 px, 430 px, 654 px, 660 px, 868 px, and 1024 px viewports when browser tooling is available. Reject horizontal overflow, clipped text, or multi-line section labels caused by layout constraints. Keep the header brand on one line and its dot perfectly circular. Stack every section heading as three left-aligned rows: section number, title, then note; do not use vertical transforms to align mixed scripts. In repository rows, top-align the numeric index with the repository title rather than centering it against the whole row. Keep the reading-time summary beneath the main headline and left-align the `今日思考` content from the start of its card. Do not render a redundant source badge strip above the sections.
+11. Preview the homepage and issue at desktop plus 383 px, 430 px, 654 px, 660 px, 868 px, and 1024 px viewports when browser tooling is available. Reject horizontal overflow, clipped text, or multi-line section labels caused by layout constraints. Keep the header brand on one line and its dot perfectly circular. Stack every section heading as three left-aligned rows: section number, title, then note; do not use vertical transforms to align mixed scripts. In repository rows, align the numeric index to the visible title glyphs, using a measured fixed optical offset when their font sizes differ. Keep each Product Hunt icon and title in one flex row and use the real local project icon. Keep the reading-time summary beneath the main headline and left-align the `今日思考` content from the start of its card. Do not render a redundant source badge strip above the sections.
 12. For Feishu/Lark delivery, read [lark-delivery.md](references/lark-delivery.md), upload the issue image, and render the card with `scripts/render-lark-card.mjs`.
 13. Separate generation from outward actions. Before sending, confirm the destination, exact card, and sending identity. Preserve existing hosting architecture and dated URLs.
 
@@ -83,6 +83,7 @@ Use `assets/issue.example.json` as a structural starter, not as content. `assets
 - Keep the header date compact as `YYYY.MM.DD`; do not show a generation time there. Label the final editorial prompt `今日思考`.
 - Keep the footer compact: show the update date and a short data-freshness note, not collection details or source limitations.
 - Name the site consistently as `Claire's Morning Signals` in both header and footer. Format Feishu card dates as `YYYY.MM.DD`, without Chinese year/month/day characters.
+- Render the Product Hunt project's real icon beside its title from a local dated asset; never substitute generated initials when a source icon is available.
 - Set a canonical URL and social-preview metadata for the dated page.
 - If the briefing is private-by-link, add `noindex,nofollow,noarchive`. Allow preview crawlers in `robots.txt`; otherwise Feishu may not read the page metadata. Clarify that this is not access control.
 - Do not expose API keys, browser state, access tokens, or service credentials in output, logs, Git, or HTML.

@@ -30,6 +30,8 @@
     {
       "name": "Product",
       "url": "https://example.com/product",
+      "icon": "./product.png",
+      "icon_source_url": "https://ph-files.imgix.net/example.png",
       "summary": "说明产品做什么，以及为什么值得关注。",
       "source": "Product Hunt official feed"
     }

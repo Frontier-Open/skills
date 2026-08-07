@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { access, readFile } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
 
 const args = process.argv.slice(2);
 const valueOf = (flag) => {
@@ -21,11 +21,25 @@ for (const text of [issue.brand, issue.headline, issue.topic, issue.canonical_ur
 }
 if (!html.includes('name="robots" content="noindex,nofollow,noarchive"')) errors.push("Missing private-by-link robots metadata");
 if (!/@media\s*\(max-width:\s*800px\)/u.test(html)) errors.push("Missing mobile layout rules");
+if (issue.products.length && !html.includes('class="product-heading"')) errors.push("Missing Product Hunt icon/title rows");
+
+for (const [index, product] of issue.products.entries()) {
+  if (!/^\.\/[A-Za-z0-9][A-Za-z0-9._-]*\.(?:avif|jpe?g|png|svg|webp)$/u.test(product.icon || "")) {
+    errors.push(`products[${index}].icon must be a local image next to the rendered issue`);
+    continue;
+  }
+  if (!html.includes(`src="${product.icon}"`)) errors.push(`Rendered HTML is missing product icon: ${product.icon}`);
+  try {
+    await access(resolve(dirname(htmlPath), product.icon));
+  } catch {
+    errors.push(`Missing product icon file: ${product.icon}`);
+  }
+}
 
 const links = [
   ...issue.signals.map((item) => item.source_url),
   ...issue.repositories.map((item) => item.url),
-  ...issue.products.map((item) => item.url),
+  ...issue.products.flatMap((item) => [item.url, item.icon_source_url]),
 ];
 for (const link of links) {
   try {
