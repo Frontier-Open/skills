@@ -39,7 +39,7 @@ Use an interactive card when the recipient should scan the thesis and open the f
      --out lark-card.json
    ```
 
-3. Inspect `lark-card.json`. Confirm the recipient, exact card content, webpage link, cloud-document link, and whether the sender is `user` or `bot`. The webpage must be the first `primary` button; the Feishu document must be the second `default` button.
+3. Inspect `lark-card.json`. Confirm the recipient, exact card content, webpage link, cloud-document link, and whether the sender is `user` or `bot`. The Feishu document must be the first `default` button on the left; the webpage must be the second `primary` button on the right.
 4. Preview the request before sending:
 
    ```bash
