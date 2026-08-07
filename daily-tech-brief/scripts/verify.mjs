@@ -28,6 +28,9 @@ if (!html.includes('name="robots" content="noindex,nofollow,noarchive"')) errors
 if (!/@media\s*\(max-width:\s*800px\)/u.test(html)) errors.push("Missing mobile layout rules");
 if (issue.products.length && !html.includes('class="product-heading"')) errors.push("Missing Product Hunt icon/title rows");
 if (!html.includes("04 / THINK") || !html.includes("今日思考")) errors.push("Missing numbered 04 / THINK section");
+if (!/<section class="section thought-section">[\s\S]*?<div class="section-head">[\s\S]*?04 \/ THINK[\s\S]*?<h2>今日思考<\/h2>[\s\S]*?<aside class="action"><p>/u.test(html)) {
+  errors.push("04 / THINK heading must sit outside the thought content card");
+}
 
 for (const [index, product] of issue.products.entries()) {
   if (!/^\.\/[A-Za-z0-9][A-Za-z0-9._-]*\.(?:avif|jpe?g|png|svg|webp)$/u.test(product.icon || "")) {

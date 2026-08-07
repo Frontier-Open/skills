@@ -151,11 +151,14 @@ ${css}
           </div>
           <div class="product-grid">${productCards}</div>
         </section>
-        <aside class="action">
-          <div class="action-no">04 / THINK</div>
-          <h2>今日思考</h2>
-          <p>${escapeHtml(issue.topic)}</p>
-        </aside>
+        <section class="section thought-section">
+          <div class="section-head">
+            <div class="section-no">04 / THINK</div>
+            <h2>今日思考</h2>
+            <div class="section-note">把今天的信号变成一个值得继续追问的问题</div>
+          </div>
+          <aside class="action"><p>${escapeHtml(issue.topic)}</p></aside>
+        </section>
       </main>
       <footer>
         <div>${escapeHtml(issue.brand)}</div>

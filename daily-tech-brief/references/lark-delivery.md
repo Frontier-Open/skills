@@ -5,18 +5,21 @@ Use an interactive card when the recipient should scan the thesis and open the f
 ## Create the cloud-document edition
 
 1. Generate `brief.md` from the final issue JSON. Its first and only level-one heading must include the issue date.
-2. Create the Feishu cloud document as the authorized user:
+2. Resolve the user identity's `my_library` space and list its root nodes. Find exactly one root node titled `Claire's Morning Signals`; this is the permanent briefing directory. Do not create the issue in Drive root or use `drive +move` as a substitute.
+3. List the children of that directory. If a child for `YYYY-MM-DD` already exists, update and reuse it rather than creating a duplicate. Otherwise, create the document directly under the directory's wiki node token:
 
    ```bash
    lark-cli docs +create \
      --api-version v2 \
      --doc-format markdown \
+     --parent-token <CLAIRE_MORNING_SIGNALS_NODE_TOKEN> \
+     --title YYYY-MM-DD \
      --content @brief.md \
      --as user
    ```
 
-3. Fetch the returned document once with `docs +fetch --api-version v2 --doc-format markdown` and verify its title, all four sections, all ten items, and source links.
-4. Read the document's `drive permission.public get` settings. Require at least `link_share_entity=tenant_readable` for an internal recipient. Do not widen access automatically; if the intended recipient cannot read it, stop before sending and request the narrowly scoped permission change. Retain the canonical `/docx/` URL for the card.
+4. Fetch the selected document once with `docs +fetch --api-version v2 --doc-format markdown` and verify its title, all four sections, all ten items, and source links. Re-list the permanent directory and verify that the document's `obj_token` is a child of that exact node.
+5. Read the document's `drive permission.public get` settings. Require at least `link_share_entity=tenant_readable` for an internal recipient. Do not widen access automatically; if the intended recipient cannot read it, stop before sending and request the narrowly scoped permission change. Retain its `/docx/` or `/wiki/` URL for the card.
 
 ## Prepare the card
 
