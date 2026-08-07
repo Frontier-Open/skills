@@ -147,7 +147,7 @@ ${css}
         </aside>
       </main>
       <footer>
-        <div>${escapeHtml(issue.brand)} · ${escapeHtml(displayDate)}</div>
+        <div>Claire's Morning Signals</div>
         <div class="right">更新于 ${escapeHtml(displayDate)} · 榜单数据以发布时为准</div>
       </footer>
     </div>

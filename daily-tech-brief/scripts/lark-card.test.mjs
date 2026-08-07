@@ -16,12 +16,13 @@ const issue = {
 test("renders a compact Feishu card with an uploaded cover", () => {
   const card = buildLarkCard(issue, { imageKey: "img_v3_test" });
   assert.equal(card.header.template, "orange");
+  assert.equal(card.header.title.content, "Claire 的科技早报 · 2026.08.07");
   assert.equal(card.elements[0].tag, "img");
   assert.equal(card.elements[0].img_key, "img_v3_test");
   assert.equal(card.elements.at(-1).actions[0].url, issue.canonical_url);
   assert.match(card.elements[2].fields[0].text.content, /\*\*4\*\*/u);
   assert.match(card.elements.at(-2).text.content, /今日思考/u);
-  assert.doesNotMatch(JSON.stringify(card), /玉婷|你的选题|今日延伸选题|Techmeme|generated_at/u);
+  assert.doesNotMatch(JSON.stringify(card), /玉婷|你的选题|今日延伸选题|Techmeme|generated_at|2026 年 08 月 07 日/u);
   assert.equal(card.elements.some((element) => element.tag === "note"), false);
 });
 

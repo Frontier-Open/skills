@@ -1,6 +1,5 @@
 function dateLabel(date) {
-  const [year, month, day] = date.split("-");
-  return `${year} 年 ${month} 月 ${day} 日`;
+  return date.replaceAll("-", ".");
 }
 
 function countField(count, label) {

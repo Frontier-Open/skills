@@ -82,6 +82,7 @@ Use `assets/issue.example.json` as a structural starter, not as content. `assets
 - Link each dated issue back to `/` so readers can reach the archive from a shared issue URL.
 - Keep the header date compact as `YYYY.MM.DD`; do not show a generation time there. Label the final editorial prompt `今日思考`.
 - Keep the footer compact: show the update date and a short data-freshness note, not collection details or source limitations.
+- Name the site consistently as `Claire's Morning Signals` in both header and footer. Format Feishu card dates as `YYYY.MM.DD`, without Chinese year/month/day characters.
 - Set a canonical URL and social-preview metadata for the dated page.
 - If the briefing is private-by-link, add `noindex,nofollow,noarchive`. Allow preview crawlers in `robots.txt`; otherwise Feishu may not read the page metadata. Clarify that this is not access control.
 - Do not expose API keys, browser state, access tokens, or service credentials in output, logs, Git, or HTML.
