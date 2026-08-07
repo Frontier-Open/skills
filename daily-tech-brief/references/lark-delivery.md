@@ -34,4 +34,6 @@ Use an interactive card when the recipient should scan the thesis and open the f
 
 5. Remove `--dry-run` only after approval. Preserve the date-based idempotency key so retries do not duplicate the delivery.
 
+Because delivery uses `--user-id` with `--as user`, the card is sent as the authorized user into the normal P2P conversation with the recipient and remains visible in both participants' chat history. Using `--as bot` would instead send under the app bot identity.
+
 If image upload is unavailable, render with `--without-image`. Never put a public image URL into `img_key`; Feishu cards require an uploaded `img_xxx` key.

@@ -94,10 +94,10 @@ h1 em { color: var(--accent); font-style: normal; }
 .signal:first-child .why { color: #ff896a; }
 
 .repo-list { overflow: hidden; border: 1px solid var(--line); border-radius: 22px; background: var(--surface); }
-.repo { display: grid; grid-template-columns: 54px 1fr 158px; gap: 22px; align-items: center; padding: 26px 28px; border-top: 1px solid var(--line); }
+.repo { display: grid; grid-template-columns: 54px 1fr 158px; gap: 22px; align-items: start; padding: 26px 28px; border-top: 1px solid var(--line); }
 .repo:first-child { border-top: 0; }
-.repo-index { color: var(--accent); font: 800 14px ui-monospace, monospace; }
-.repo h3 { margin: 0 0 7px; font: 800 18px ui-monospace, monospace; letter-spacing: -0.02em; }
+.repo-index { color: var(--accent); font: 800 14px/1.2 ui-monospace, monospace; }
+.repo h3 { margin: 0 0 7px; font: 800 18px/1.2 ui-monospace, monospace; letter-spacing: -0.02em; }
 .repo p { margin: 0; color: var(--ink3); font-size: 14px; line-height: 1.55; }
 .repo-stat { justify-self: end; text-align: right; font-family: ui-monospace, monospace; }
 .repo-stat strong { display: block; color: var(--accent); font-size: 18px; }
