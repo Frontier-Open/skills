@@ -40,7 +40,10 @@ if (issue.products.length > 4) throw new Error("products must contain 0-4 items"
 const canonical = absoluteUrl(issue.canonical_url, "canonical_url");
 if (!canonical.endsWith("/")) throw new Error("canonical_url must end with /");
 const canonicalObject = new URL(canonical);
-const ogUrl = new URL(`/${issue.date}/og.png`, canonicalObject.origin).toString();
+const [issueYear, issueMonth, issueDayOfMonth] = issue.date.split("-");
+const issueRoute = `/${issueYear}/${issueMonth}/${issueDayOfMonth}/`;
+if (canonicalObject.pathname !== issueRoute) throw new Error(`canonical_url must end with ${issueRoute}`);
+const ogUrl = new URL(`${issueRoute}og.png`, canonicalObject.origin).toString();
 const date = new Date(`${issue.date}T00:00:00Z`);
 if (Number.isNaN(date.valueOf())) throw new Error("date must be YYYY-MM-DD");
 const displayDate = new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" }).format(date).toUpperCase();

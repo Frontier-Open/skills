@@ -28,16 +28,16 @@ Produce a short editorial briefing, not a copied ranking. Keep every claim trace
 7. Render the issue:
 
    ```bash
-   node scripts/render.mjs --issue issue.json --out public/2026-08-07/index.html
+   node scripts/render.mjs --issue issue.json --out public/2026/08/07/index.html
    ```
 
 8. Verify structure and links:
 
    ```bash
-   node scripts/verify.mjs --issue issue.json --html public/2026-08-07/index.html
+   node scripts/verify.mjs --issue issue.json --html public/2026/08/07/index.html
    ```
 
-9. Copy a 1.9:1 issue preview image to `public/YYYY-MM-DD/og.png`. Keep its URL date-specific so Feishu does not reuse an older cached preview.
+9. Copy a 1.9:1 issue preview image to `public/YYYY/MM/DD/og.png`. Keep its URL date-specific so Feishu does not reuse an older cached preview.
 10. Rebuild the archive homepage after adding the issue:
 
    ```bash
@@ -65,9 +65,11 @@ Keep these artifacts together:
 ```text
 work/raw.json                 collected candidates and source warnings
 issue.json                    curated, sourced issue data
-public/YYYY-MM-DD/index.html  canonical dated issue
-public/YYYY-MM-DD/og.png      issue-specific link-preview image
-public/index.html             generated archive homepage
+public/YYYY/MM/DD/index.html  canonical dated issue
+public/YYYY/MM/DD/og.png      issue-specific link-preview image
+public/YYYY/index.html        generated year archive
+public/YYYY/MM/index.html     generated month archive
+public/index.html             generated root archive
 lark-card.json                send-ready Feishu card after image-key injection
 ```
 
@@ -75,8 +77,8 @@ Use `assets/issue.example.json` as a structural starter, not as content. `assets
 
 ## Publication rules
 
-- Keep `/YYYY-MM-DD/` permanent after publication.
-- Make `/` an archive homepage with a prominent latest issue and month-grouped dated issues.
+- Keep `/YYYY/MM/DD/` permanent after publication. Redirect legacy `/YYYY-MM-DD/` links with HTTP 301.
+- Generate `/`, `/YYYY/`, and `/YYYY/MM/` archive pages after every issue.
 - Link each dated issue back to `/` so readers can reach the archive from a shared issue URL.
 - Set a canonical URL and social-preview metadata for the dated page.
 - If the briefing is private-by-link, add `noindex,nofollow,noarchive`. Allow preview crawlers in `robots.txt`; otherwise Feishu may not read the page metadata. Clarify that this is not access control.

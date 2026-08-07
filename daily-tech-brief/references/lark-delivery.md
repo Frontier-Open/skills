@@ -7,7 +7,7 @@ Use an interactive card when the recipient should scan the thesis and open the f
 1. Upload the issue cover as a Feishu message image and retain its `image_key`:
 
    ```bash
-   lark-cli im images create --data '{"image_type":"message"}' --file ./public/YYYY-MM-DD/og.png --as bot
+   lark-cli im images create --data '{"image_type":"message"}' --file ./public/YYYY/MM/DD/og.png --as bot
    ```
 
 2. Render a send-ready card:

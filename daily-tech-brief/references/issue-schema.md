@@ -7,7 +7,7 @@
   "date": "2026-08-07",
   "timezone": "Asia/Shanghai",
   "generated_at": "2026-08-07T09:57:00+08:00",
-  "canonical_url": "https://brief.example.com/2026-08-07/",
+  "canonical_url": "https://brief.example.com/2026/08/07/",
   "brand": "CLAIRE'S MORNING SIGNALS",
   "headline": "One editorial thesis",
   "dek": "10 分钟读完 · 10 条精选",
@@ -64,5 +64,5 @@
 - `repositories`: 1-6 items.
 - `products`: 0-4 items.
 - All selected items need an absolute HTTP(S) URL.
-- `canonical_url` must end with `/`.
+- `canonical_url` must use `/YYYY/MM/DD/` and end with `/`.
 - Store warnings as concise strings; never store secrets or raw authentication errors.

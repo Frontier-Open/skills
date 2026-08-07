@@ -5,7 +5,7 @@ import { buildLarkCard } from "./lark-card.mjs";
 const issue = {
   date: "2026-08-07",
   generated_at: "2026-08-07T09:57:00+08:00",
-  canonical_url: "https://brief.example.com/2026-08-07/",
+  canonical_url: "https://brief.example.com/2026/08/07/",
   headline: "AI 正在争夺工作、成本与入口。",
   topic: "《今天的内容选题》",
   signals: [{ title: "信号一" }, { title: "信号二" }, { title: "信号三" }, { title: "信号四" }],
