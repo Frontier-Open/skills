@@ -9,8 +9,10 @@ const issue = {
   headline: "AI 正在争夺工作、成本与入口。",
   topic: "《今天的内容选题》",
   signals: [{ title: "信号一" }, { title: "信号二" }, { title: "信号三" }, { title: "信号四" }],
-  repositories: [{}, {}, {}, {}],
-  products: [{}, {}],
+  dek: "15 分钟读完 · 19 条精选",
+  github_trending: [{}, {}, {}, {}, {}],
+  hello_github: [{}, {}, {}, {}, {}],
+  products: [{}, {}, {}, {}, {}],
 };
 
 test("renders a compact Feishu card with an uploaded cover", () => {
@@ -21,6 +23,9 @@ test("renders a compact Feishu card with an uploaded cover", () => {
   assert.equal(card.elements[0].img_key, "img_v3_test");
   assert.equal(card.elements.at(-1).actions[0].url, issue.canonical_url);
   assert.match(card.elements[2].fields[0].text.content, /\*\*4\*\*/u);
+  assert.match(card.elements[2].fields[1].text.content, /GitHub 精选/u);
+  assert.match(card.elements[2].fields[2].text.content, /HelloGitHub/u);
+  assert.equal(card.elements.at(-1).actions[0].text.content, "阅读全文 · 约 15分钟");
   assert.match(card.elements.at(-2).text.content, /今日思考/u);
   assert.doesNotMatch(JSON.stringify(card), /玉婷|你的选题|今日延伸选题|Techmeme|generated_at|2026 年 08 月 07 日/u);
   assert.equal(card.elements.some((element) => element.tag === "note"), false);

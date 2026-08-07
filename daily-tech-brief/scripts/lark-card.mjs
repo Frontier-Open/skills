@@ -48,8 +48,9 @@ export function buildLarkCard(issue, { imageKey } = {}) {
       tag: "div",
       fields: [
         countField(issue.signals.length, "科技与商业"),
-        countField(issue.repositories.length, "开源项目"),
-        countField(issue.products.length, "热门新品"),
+        countField(issue.github_trending.length, "GitHub 精选"),
+        countField(issue.hello_github.length, "HelloGitHub"),
+        countField(issue.products.length, "Product Hunt"),
       ],
     },
     { tag: "hr" },
@@ -75,7 +76,7 @@ export function buildLarkCard(issue, { imageKey } = {}) {
           type: "primary",
           text: {
             tag: "plain_text",
-            content: "阅读全文 · 约 10 分钟",
+            content: `阅读全文 · 约 ${issue.dek.match(/\d+\s*分钟/u)?.[0]?.replace(/\s/gu, "") || "15分钟"}`,
           },
           url: issue.canonical_url,
         },

@@ -37,12 +37,13 @@ const localImage = (value, label) => {
 for (const key of ["date", "timezone", "generated_at", "canonical_url", "brand", "headline", "dek", "topic"]) {
   if (!issue[key]) throw new Error(`Missing ${key}`);
 }
-for (const key of ["signals", "repositories", "products", "warnings"]) {
+for (const key of ["signals", "github_trending", "hello_github", "products", "warnings"]) {
   if (!Array.isArray(issue[key])) throw new Error(`${key} must be an array`);
 }
 if (issue.signals.length < 1 || issue.signals.length > 6) throw new Error("signals must contain 1-6 items");
-if (issue.repositories.length < 1 || issue.repositories.length > 6) throw new Error("repositories must contain 1-6 items");
-if (issue.products.length > 4) throw new Error("products must contain 0-4 items");
+if (issue.github_trending.length !== 5) throw new Error("github_trending must contain 5 curated items");
+if (issue.hello_github.length !== 5) throw new Error("hello_github must contain 5 curated items");
+if (issue.products.length !== 5) throw new Error("products must contain 5 curated items");
 
 const canonical = absoluteUrl(issue.canonical_url, "canonical_url");
 if (!canonical.endsWith("/")) throw new Error("canonical_url must end with /");
@@ -61,8 +62,8 @@ const signalCards = issue.signals.map((item, index) => {
   return `<a class="signal" href="${escapeHtml(sourceUrl)}"><div class="meta"><span class="source">${escapeHtml(item.source)}</span><span>${String(index + 1).padStart(2, "0")}</span></div><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.summary)}</p><p class="why">值得看 → ${escapeHtml(item.why)}</p></a>`;
 }).join("");
 
-const repoRows = issue.repositories.map((item, index) => {
-  const url = absoluteUrl(item.url, `repositories[${index}].url`);
+const renderRepoRows = (items, key) => items.map((item, index) => {
+  const url = absoluteUrl(item.url, `${key}[${index}].url`);
   const note = item.metric_note || item.source || "";
   const dailyMetric = /^today\s*·\s*(.+)$/iu.exec(note);
   const hasStar = /★/u.test(item.metric || "");
@@ -74,6 +75,9 @@ const repoRows = issue.repositories.map((item, index) => {
     : "";
   return `<a class="repo" href="${escapeHtml(url)}"><div class="repo-index">${String(index + 1).padStart(2, "0")}</div><div><h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.summary)}</p></div>${metric}</a>`;
 }).join("");
+
+const githubRows = renderRepoRows(issue.github_trending, "github_trending");
+const helloGitHubRows = renderRepoRows(issue.hello_github, "hello_github");
 
 const productCards = issue.products.map((item, index) => {
   const url = absoluteUrl(item.url, `products[${index}].url`);
@@ -144,19 +148,27 @@ ${css}
         <section class="section">
           <div class="section-head">
             <div class="section-no">02 / BUILD</div>
-            <h2>开源雷达</h2>
-            <div class="section-note">GitHub 日榜 + HelloGitHub 中文精选</div>
+            <h2>GitHub Trending 精选</h2>
+            <div class="section-note">从完整日榜中按 AI 工作流、创业与内容价值筛选 5 条</div>
           </div>
-          <div class="repo-list">${repoRows}</div>
+          <div class="repo-list">${githubRows}</div>
         </section>
-        ${issue.products.length ? `<section class="section">
+        <section class="section">
           <div class="section-head">
-            <div class="section-no">03 / SHIP</div>
-            <h2>Product Hunt 今日上榜</h2>
-            <div class="section-note">官方 Feed；票数未公开则不猜</div>
+            <div class="section-no">03 / DISCOVER</div>
+            <h2>HelloGitHub 中文精选</h2>
+            <div class="section-note">从中文项目池中按内容创作、研究与个人品牌价值筛选 5 条</div>
+          </div>
+          <div class="repo-list">${helloGitHubRows}</div>
+        </section>
+        <section class="section">
+          <div class="section-head">
+            <div class="section-no">04 / SHIP</div>
+            <h2>Product Hunt 今日精选</h2>
+            <div class="section-note">从官方 Feed 候选中筛选 5 条；不按榜单照搬</div>
           </div>
           <div class="product-grid">${productCards}</div>
-        </section>` : ""}
+        </section>
         <aside class="action">
           <div class="action-label">今日思考</div>
           <p>${escapeHtml(issue.topic)}</p>

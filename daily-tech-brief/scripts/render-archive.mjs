@@ -59,6 +59,7 @@ issues.sort((a, b) => b.date.localeCompare(a.date));
 if (!issues.length) throw new Error(`No hierarchical dated issues found in ${publicDir}`);
 
 const latest = issues[0];
+const latestMinutes = latest.description.match(/\d+\s*分钟/u)?.[0]?.replace(/\s/gu, "") || "15分钟";
 const dateParts = (date) => {
   const parsed = new Date(`${date}T00:00:00Z`);
   return {
@@ -87,10 +88,10 @@ function monthSection(month, items, linkMonth = false) {
 }
 
 function page({ canonicalPath, title, eyebrow, heading, aside, content, latestCard = false }) {
-  const selected = latestCard ? `<a class="latest" href="${escapeHtml(latest.url)}"><div class="latest-image"><img src="${escapeHtml(latest.image)}" alt="${escapeHtml(latest.headline)}"></div><div class="latest-copy"><div class="latest-label">LATEST ISSUE · ${escapeHtml(dateParts(latest.date).long)}</div><h2>${escapeHtml(latest.headline)}</h2><p>${escapeHtml(latest.description)}</p><div class="latest-cta"><span>阅读全文 · 约 10 分钟</span><span>↗</span></div></div></a>` : "";
+  const selected = latestCard ? `<a class="latest" href="${escapeHtml(latest.url)}"><div class="latest-image"><img src="${escapeHtml(latest.image)}" alt="${escapeHtml(latest.headline)}"></div><div class="latest-copy"><div class="latest-label">LATEST ISSUE · ${escapeHtml(dateParts(latest.date).long)}</div><h2>${escapeHtml(latest.headline)}</h2><p>${escapeHtml(latest.description)}</p><div class="latest-cta"><span>阅读全文 · 约 ${escapeHtml(latestMinutes)}</span><span>↗</span></div></div></a>` : "";
   const canonical = `${origin}${canonicalPath}`;
   const crumbs = canonicalPath === "/" ? '<a href="/">全部</a>' : `<a href="/">全部</a><span>/</span>${canonicalPath.split("/").filter(Boolean).map((part, index, parts) => `<a href="/${parts.slice(0, index + 1).join("/")}/">${escapeHtml(part)}</a>${index < parts.length - 1 ? "<span>/</span>" : ""}`).join("")}`;
-  return `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)}</title><meta name="description" content="Claire 的科技、商业、开源与产品晨报归档。"><meta name="robots" content="noindex,nofollow,noarchive"><link rel="canonical" href="${canonical}"><meta property="og:type" content="website"><meta property="og:title" content="${escapeHtml(title)}"><meta property="og:description" content="科技、商业、开源与产品晨报归档。"><meta property="og:url" content="${canonical}"><meta property="og:image" content="${origin}${latest.image}"><style>${css}</style></head><body><main class="page"><header><div class="topline"><a class="brand" href="/"><i class="dot"></i>Claire's Morning Signals</a><div class="counter">${issues.length} ISSUES · SINCE ${escapeHtml(issues.at(-1).date)}</div></div><nav class="crumbs">${crumbs}</nav><div class="intro"><div><div class="eyebrow">${escapeHtml(eyebrow)}</div><h1>${heading}</h1></div><aside>${escapeHtml(aside)}</aside></div></header>${selected}${content}<footer class="footer"><span>CLAIRE'S PARLOR · MORNING SIGNALS</span><span>TECHMEME · DAILY.DEV · GITHUB · HELLOGITHUB · PRODUCT HUNT</span></footer></main></body></html>`;
+  return `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)}</title><meta name="description" content="Claire 的科技、商业、开源与产品晨报归档。"><meta name="robots" content="noindex,nofollow,noarchive"><link rel="canonical" href="${canonical}"><meta property="og:type" content="website"><meta property="og:title" content="${escapeHtml(title)}"><meta property="og:description" content="科技、商业、开源与产品晨报归档。"><meta property="og:url" content="${canonical}"><meta property="og:image" content="${origin}${latest.image}"><style>${css}</style></head><body><main class="page"><header><div class="topline"><a class="brand" href="/"><i class="dot"></i>CLAIRE'S MORNING SIGNALS</a><div class="counter">${issues.length} ISSUES · SINCE ${escapeHtml(issues.at(-1).date)}</div></div><nav class="crumbs">${crumbs}</nav><div class="intro"><div><div class="eyebrow">${escapeHtml(eyebrow)}</div><h1>${heading}</h1></div><aside>${escapeHtml(aside)}</aside></div></header>${selected}${content}<footer class="footer"><span>CLAIRE'S MORNING SIGNALS</span><span>TECHMEME · DAILY.DEV · GITHUB · HELLOGITHUB · PRODUCT HUNT</span></footer></main></body></html>`;
 }
 
 function groupBy(items, keyOf) {
@@ -107,7 +108,7 @@ const byYear = groupBy(issues, (issue) => issue.year);
 const byMonth = groupBy(issues, (issue) => `${issue.year}-${issue.month}`);
 const yearCards = [...byYear.entries()].map(([year, items]) => `<a class="year-card" href="/${year}/"><span>YEAR ARCHIVE</span><strong>${year}</strong><small>${items.length} ISSUES ↗</small></a>`).join("");
 const rootMonths = [...byMonth.entries()].map(([month, items]) => monthSection(month, items, true)).join("");
-const root = page({ canonicalPath: "/", title: "Claire's Morning Signals · 晨报档案馆", eyebrow: "Morning intelligence archive", heading: "每天十分钟，<em>看见下一步。</em>", aside: "不是新闻搬运。这里保存每天从科技商业、开源社区与新产品中筛出的少数有效信号。", latestCard: true, content: `<div class="archive-title"><h2>按年份查看</h2><p>年度 · 月度 · 每日三级归档</p></div><div class="year-grid">${yearCards}</div><div class="archive-title"><h2>晨报档案馆</h2><p>按日期永久保存 · 由新到旧</p></div>${rootMonths}` });
+const root = page({ canonicalPath: "/", title: "Claire's Morning Signals · 晨报档案馆", eyebrow: "Morning intelligence archive", heading: "每天一刻钟，<em>看见下一步。</em>", aside: "不是新闻搬运。这里保存每天从科技商业、开源社区与新产品中筛出的少数有效信号。", latestCard: true, content: `<div class="archive-title"><h2>按年份查看</h2><p>年度 · 月度 · 每日三级归档</p></div><div class="year-grid">${yearCards}</div><div class="archive-title"><h2>晨报档案馆</h2><p>按日期永久保存 · 由新到旧</p></div>${rootMonths}` });
 await mkdir(dirname(outputPath), { recursive: true });
 await writeFile(outputPath, root, "utf8");
 

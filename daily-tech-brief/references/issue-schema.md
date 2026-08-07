@@ -10,9 +10,10 @@
   "canonical_url": "https://brief.example.com/2026/08/07/",
   "brand": "CLAIRE'S MORNING SIGNALS",
   "headline": "One editorial thesis",
-  "dek": "10 分钟读完 · 10 条精选",
+  "dek": "15 分钟读完 · 19 条精选",
   "signals": [],
-  "repositories": [],
+  "github_trending": [],
+  "hello_github": [],
   "products": [],
   "topic": "One actionable content topic",
   "warnings": []
@@ -65,8 +66,10 @@
 ## Constraints
 
 - `signals`: 1-6 items.
-- `repositories`: 1-6 items.
-- `products`: 0-4 items.
+- `github_trending`: exactly 5 curated items by default.
+- `hello_github`: exactly 5 curated items by default.
+- `products`: exactly 5 curated items by default.
+- Keep GitHub Trending and HelloGitHub separate; do not merge them into a single repository list.
 - All selected items need an absolute HTTP(S) URL.
 - Every product needs a local `./filename.ext` icon and an absolute `icon_source_url`.
 - `canonical_url` must use `/YYYY/MM/DD/` and end with `/`.
