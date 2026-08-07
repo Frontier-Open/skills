@@ -79,18 +79,18 @@ export function buildLarkCard(issue, { imageKey, documentUrl } = {}) {
           type: "primary",
           text: {
             tag: "plain_text",
-            content: "飞书文字版",
+            content: `查看网页版 · ${issue.dek.match(/\d+\s*分钟/u)?.[0]?.replace(/\s/gu, "") || "10分钟"}`,
           },
-          url: documentUrl,
+          url: issue.canonical_url,
         },
         {
           tag: "button",
           type: "default",
           text: {
             tag: "plain_text",
-            content: `查看网页版 · ${issue.dek.match(/\d+\s*分钟/u)?.[0]?.replace(/\s/gu, "") || "10分钟"}`,
+            content: "飞书文字版",
           },
-          url: issue.canonical_url,
+          url: documentUrl,
         },
       ],
     },

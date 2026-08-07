@@ -104,3 +104,4 @@ Use `assets/issue.example.json` as a structural starter, not as content. `assets
 - If the briefing is private-by-link, add `noindex,nofollow,noarchive`. Allow preview crawlers in `robots.txt`; otherwise Feishu may not read the page metadata. Clarify that this is not access control.
 - Do not expose API keys, browser state, access tokens, or service credentials in output, logs, Git, or HTML.
 - Use an idempotency key for scheduled delivery so a retry cannot send the same issue twice.
+- In the Feishu card, make the canonical webpage the first primary button and the Feishu text document the second default button.
