@@ -1,0 +1,39 @@
+{
+  "date": "2026-08-07",
+  "timezone": "Asia/Shanghai",
+  "generated_at": "2026-08-07T09:57:00+08:00",
+  "canonical_url": "https://brief.example.com/2026-08-07/",
+  "brand": "CLAIRE'S MORNING SIGNALS",
+  "headline": "AI 不再只争谁会聊天，开始争夺工作、成本与入口。",
+  "dek": "10 分钟读完 · 10 条精选",
+  "signals": [
+    {
+      "title": "一个可追溯的科技信号",
+      "source": "Source · Publisher",
+      "source_url": "https://example.com/signal",
+      "summary": "用两句话说明发生了什么。",
+      "why": "说明这件事为什么值得读者关注。",
+      "published_at": "2026-08-07T08:00:00+08:00"
+    }
+  ],
+  "repositories": [
+    {
+      "name": "owner/repository",
+      "url": "https://github.com/owner/repository",
+      "summary": "说明项目做什么，以及为什么值得关注。",
+      "metric": "+1,000 ★",
+      "metric_note": "today · 10,000 total",
+      "source": "GitHub Trending"
+    }
+  ],
+  "products": [
+    {
+      "name": "Product",
+      "url": "https://example.com/product",
+      "summary": "说明产品做什么，以及为什么值得关注。",
+      "source": "Product Hunt official feed"
+    }
+  ],
+  "topic": "《把今天的信号转成一个可执行的内容选题》",
+  "warnings": []
+}

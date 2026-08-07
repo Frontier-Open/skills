@@ -1,0 +1,10 @@
+{
+  "name": "daily-tech-brief-skill",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test scripts/*.test.mjs",
+    "validate:skill": "python3 /Users/chenjie/.codex/skills/.system/skill-creator/scripts/quick_validate.py ."
+  }
+}

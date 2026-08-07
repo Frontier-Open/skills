@@ -1,0 +1,4 @@
+interface:
+  display_name: "Daily Tech Brief"
+  short_description: "Create a sourced daily tech briefing"
+  default_prompt: "Use $daily-tech-brief to collect, curate, render, verify, and prepare today’s technology briefing."

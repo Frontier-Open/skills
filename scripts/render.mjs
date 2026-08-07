@@ -1,0 +1,72 @@
+#!/usr/bin/env node
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
+
+const args = process.argv.slice(2);
+const valueOf = (flag) => {
+  const index = args.indexOf(flag);
+  return index >= 0 ? args[index + 1] : undefined;
+};
+
+const issuePath = resolve(valueOf("--issue") || "issue.json");
+const outPath = resolve(valueOf("--out") || "public/index.html");
+const issue = JSON.parse(await readFile(issuePath, "utf8"));
+const css = await readFile(new URL("../assets/brief.css", import.meta.url), "utf8");
+
+const escapeHtml = (value = "") => String(value).replace(/[&<>"']/gu, (character) => ({
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;",
+}[character]));
+
+const absoluteUrl = (value, label) => {
+  const url = new URL(value);
+  if (!/^https?:$/u.test(url.protocol)) throw new Error(`${label} must use HTTP(S)`);
+  return url.toString();
+};
+
+for (const key of ["date", "timezone", "generated_at", "canonical_url", "brand", "headline", "dek", "topic"]) {
+  if (!issue[key]) throw new Error(`Missing ${key}`);
+}
+for (const key of ["signals", "repositories", "products", "warnings"]) {
+  if (!Array.isArray(issue[key])) throw new Error(`${key} must be an array`);
+}
+if (issue.signals.length < 1 || issue.signals.length > 6) throw new Error("signals must contain 1-6 items");
+if (issue.repositories.length < 1 || issue.repositories.length > 6) throw new Error("repositories must contain 1-6 items");
+if (issue.products.length > 4) throw new Error("products must contain 0-4 items");
+
+const canonical = absoluteUrl(issue.canonical_url, "canonical_url");
+if (!canonical.endsWith("/")) throw new Error("canonical_url must end with /");
+const canonicalObject = new URL(canonical);
+const ogUrl = new URL("/og.png", canonicalObject.origin).toString();
+const date = new Date(`${issue.date}T00:00:00Z`);
+if (Number.isNaN(date.valueOf())) throw new Error("date must be YYYY-MM-DD");
+const displayDate = new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" }).format(date).toUpperCase();
+const weekday = new Intl.DateTimeFormat("en-GB", { weekday: "short", timeZone: "UTC" }).format(date).toUpperCase();
+const issueDay = issue.date.slice(-2);
+
+const signalCards = issue.signals.map((item, index) => {
+  const sourceUrl = absoluteUrl(item.source_url, `signals[${index}].source_url`);
+  return `<a class="signal" href="${escapeHtml(sourceUrl)}"><div class="meta"><span class="source">${escapeHtml(item.source)}</span><span>${String(index + 1).padStart(2, "0")}</span></div><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.summary)}</p><p class="why">值得看 → ${escapeHtml(item.why)}</p></a>`;
+}).join("");
+
+const repoRows = issue.repositories.map((item, index) => {
+  const url = absoluteUrl(item.url, `repositories[${index}].url`);
+  const metric = item.metric ? `<div class="repo-stat"><strong>${escapeHtml(item.metric)}</strong><small>${escapeHtml(item.metric_note || item.source || "")}</small></div>` : "";
+  return `<a class="repo" href="${escapeHtml(url)}"><div class="repo-index">${String(index + 1).padStart(2, "0")}</div><div><h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.summary)}</p></div>${metric}</a>`;
+}).join("");
+
+const productCards = issue.products.map((item, index) => {
+  const url = absoluteUrl(item.url, `products[${index}].url`);
+  return `<a class="product" href="${escapeHtml(url)}"><span class="product-mark">${String(index + 1).padStart(2, "0")}</span><h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.summary)}</p></a>`;
+}).join("");
+
+const warningText = issue.warnings.length ? ` · 数据限制：${issue.warnings.map(escapeHtml).join("；")}` : "";
+const description = `${issue.dek}：科技商业、GitHub 热门项目与 Product Hunt 精选。`;
+const html = `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(issue.brand)} · ${escapeHtml(issue.date)}</title><meta name="description" content="${escapeHtml(description)}"><meta name="robots" content="noindex,nofollow,noarchive"><link rel="canonical" href="${escapeHtml(canonical)}"><meta property="og:type" content="article"><meta property="og:site_name" content="${escapeHtml(issue.brand)}"><meta property="og:title" content="${escapeHtml(issue.headline)}"><meta property="og:description" content="${escapeHtml(description)}"><meta property="og:url" content="${escapeHtml(canonical)}"><meta property="og:image" content="${escapeHtml(ogUrl)}"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${escapeHtml(issue.brand)} · ${escapeHtml(displayDate)}"><meta name="twitter:description" content="${escapeHtml(issue.headline)}"><meta name="twitter:image" content="${escapeHtml(ogUrl)}"><style>${css}</style></head><body><div class="page" data-day="${escapeHtml(issueDay)}"><header><div class="topline"><div class="brand"><i class="dot"></i>${escapeHtml(issue.brand)}</div><div class="time">${escapeHtml(weekday)} · ${escapeHtml(displayDate)} · ${escapeHtml(issue.timezone)}</div></div><div class="hero"><div><div class="eyebrow">Today's signal · 今日信号</div><h1>${escapeHtml(issue.headline)}</h1></div><div class="hero-side"><strong>${escapeHtml(issue.dek)}</strong><p>不是榜单搬运。只保留与读者真正相关、可追溯的信号。</p></div></div><div class="sources"><span>TECHMEME</span><span>DAILY.DEV</span><span>GITHUB TRENDING</span><span>HELLOGITHUB</span><span>PRODUCT HUNT</span></div></header><main><section class="section"><div class="section-head"><div class="section-no">01 / SIGNAL</div><h2>科技与商业</h2><div class="section-note">过去 24 小时 + 一条近期深读</div></div><div class="signal-grid">${signalCards}</div></section><section class="section"><div class="section-head"><div class="section-no">02 / BUILD</div><h2>开源雷达</h2><div class="section-note">GitHub 日榜 + HelloGitHub 中文精选</div></div><div class="repo-list">${repoRows}</div></section>${issue.products.length ? `<section class="section"><div class="section-head"><div class="section-no">03 / SHIP</div><h2>Product Hunt 今日上榜</h2><div class="section-note">官方 Feed；票数未公开则不猜</div></div><div class="product-grid">${productCards}</div></section>` : ""}<aside class="action"><div class="action-label">可变成读者的选题</div><p>${escapeHtml(issue.topic)}</p></aside></main><footer><div>${escapeHtml(issue.brand)} · ${escapeHtml(issue.date)}</div><div class="right">数据截取：${escapeHtml(issue.generated_at)}。波动指标以该时间为准${warningText}</div></footer></div></body></html>`;
+
+await mkdir(dirname(outPath), { recursive: true });
+await writeFile(outPath, html, "utf8");
+console.log(`Rendered ${outPath}`);
