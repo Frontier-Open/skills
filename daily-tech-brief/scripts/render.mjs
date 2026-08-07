@@ -96,6 +96,7 @@ const html = `<!doctype html>
 ${css}
 .time a { margin-left: 16px; color: var(--accent); text-decoration: none; }
 .time a:hover { text-decoration: underline; text-underline-offset: 4px; }
+@media (max-width: 480px) { .time a { margin-left: 8px; } }
     </style>
   </head>
   <body>
