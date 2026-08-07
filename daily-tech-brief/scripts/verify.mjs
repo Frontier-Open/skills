@@ -20,7 +20,7 @@ for (const text of [issue.brand, issue.headline, issue.topic, issue.canonical_ur
   }
 }
 if (!html.includes('name="robots" content="noindex,nofollow,noarchive"')) errors.push("Missing private-by-link robots metadata");
-if (!html.includes("@media(max-width:800px)")) errors.push("Missing mobile layout rules");
+if (!/@media\s*\(max-width:\s*800px\)/u.test(html)) errors.push("Missing mobile layout rules");
 
 const links = [
   ...issue.signals.map((item) => item.source_url),

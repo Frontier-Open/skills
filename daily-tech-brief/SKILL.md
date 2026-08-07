@@ -44,7 +44,7 @@ Produce a short editorial briefing, not a copied ranking. Keep every claim trace
    node scripts/render-archive.mjs --public-dir public --out public/index.html
    ```
 
-11. Preview the homepage and issue at desktop plus 383 px, 430 px, and 654 px viewports when browser tooling is available. Reject horizontal overflow, clipped text, or multi-line section labels caused by layout constraints. Keep section numbers on one line, top-align each number with its title, and align each section note with its title. Do not render a redundant source badge strip above the sections.
+11. Preview the homepage and issue at desktop plus 383 px, 430 px, 654 px, 868 px, and 1024 px viewports when browser tooling is available. Reject horizontal overflow, clipped text, or multi-line section labels caused by layout constraints. Keep section numbers on one line, top-align each number with its title, and place each section note below its title. Keep the reading-time summary beneath the main headline and left-align the `今日思考` content from the start of its card. Do not render a redundant source badge strip above the sections.
 12. For Feishu/Lark delivery, read [lark-delivery.md](references/lark-delivery.md), upload the issue image, and render the card with `scripts/render-lark-card.mjs`.
 13. Separate generation from outward actions. Before sending, confirm the destination, exact card, and sending identity. Preserve existing hosting architecture and dated URLs.
 
@@ -81,6 +81,7 @@ Use `assets/issue.example.json` as a structural starter, not as content. `assets
 - Generate `/`, `/YYYY/`, and `/YYYY/MM/` archive pages after every issue.
 - Link each dated issue back to `/` so readers can reach the archive from a shared issue URL.
 - Keep the header date compact as `YYYY.MM.DD`; do not show a generation time there. Label the final editorial prompt `今日思考`.
+- Keep the footer compact: show the update date and a short data-freshness note, not collection details or source limitations.
 - Set a canonical URL and social-preview metadata for the dated page.
 - If the briefing is private-by-link, add `noindex,nofollow,noarchive`. Allow preview crawlers in `robots.txt`; otherwise Feishu may not read the page metadata. Clarify that this is not access control.
 - Do not expose API keys, browser state, access tokens, or service credentials in output, logs, Git, or HTML.
