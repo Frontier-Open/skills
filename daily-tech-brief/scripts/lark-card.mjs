@@ -48,8 +48,7 @@ export function buildLarkCard(issue, { imageKey } = {}) {
       tag: "div",
       fields: [
         countField(issue.signals.length, "科技与商业"),
-        countField(issue.github_trending.length, "GitHub 精选"),
-        countField(issue.hello_github.length, "HelloGitHub"),
+        countField(issue.repositories.length, "开源精选"),
         countField(issue.products.length, "Product Hunt"),
       ],
     },

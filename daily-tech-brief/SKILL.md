@@ -20,8 +20,7 @@ Produce a short editorial briefing, not a copied ranking. Keep every claim trace
 3. Read [editorial-policy.md](references/editorial-policy.md). Read [issue-schema.md](references/issue-schema.md) before writing issue JSON.
 4. Curate a focused issue. Default composition:
    - 4 technology/business signals;
-   - 5 GitHub Trending repositories selected for reader relevance, not rank;
-   - 5 separate HelloGitHub projects selected for Chinese editorial usefulness;
+   - 5 repositories selected jointly from GitHub Trending and HelloGitHub, ordered by reader relevance rather than source rank;
    - 5 Product Hunt products selected from the wider feed;
    - 1 actionable topic for the reader.
 5. Open or fetch the selected source pages when a summary depends on details not present in collected metadata. Prefer primary reporting links over aggregator permalinks when both are available.
@@ -45,7 +44,7 @@ Produce a short editorial briefing, not a copied ranking. Keep every claim trace
    node scripts/render-archive.mjs --public-dir public --out public/index.html
    ```
 
-11. Preview the homepage and issue at desktop plus 383 px, 430 px, 654 px, 660 px, 868 px, and 1024 px viewports when browser tooling is available. Reject horizontal overflow, clipped text, or multi-line section labels caused by layout constraints. Keep the header brand on one line and its dot perfectly circular. Stack every section heading as three left-aligned rows: section number, title, then note; do not use vertical transforms to align mixed scripts. Render GitHub Trending and HelloGitHub as separate five-item sections. In repository rows, align the numeric index to the visible title glyphs, using a measured fixed optical offset when their font sizes differ. Show `TODAY` on the same line as a repository's daily star gain, size the star glyph to match the number visually, and put the total count on the following line. Keep each Product Hunt icon and title in one flex row and use the real local project icon. Keep the reading-time summary beneath the main headline and left-align the `今日思考` content from the start of its card. Do not render a redundant source badge strip above the sections.
+11. Preview the homepage and issue at desktop plus 383 px, 430 px, 654 px, 660 px, 868 px, and 1024 px viewports when browser tooling is available. Reject horizontal overflow, clipped text, or multi-line section labels caused by layout constraints. Keep the header brand on one line and its dot perfectly circular. Stack every section heading as three left-aligned rows: section number, title, then note; do not use vertical transforms to align mixed scripts. Merge GitHub Trending and HelloGitHub into one five-item repository section ordered by reader relevance. In repository rows, align the numeric index to the visible title glyphs and show only the current total Star count; do not show daily growth, clicks, source labels, or secondary metric rows. Keep each Product Hunt icon and title in one flex row and use the real local project icon. Keep the reading-time summary beneath the main headline and left-align the `今日思考` content from the start of its card. Do not render a redundant source badge strip above the sections.
 12. For Feishu/Lark delivery, read [lark-delivery.md](references/lark-delivery.md), upload the issue image, and render the card with `scripts/render-lark-card.mjs`.
 13. Separate generation from outward actions. Before sending, confirm the destination, exact card, and sending identity. Preserve existing hosting architecture and dated URLs.
 
@@ -57,8 +56,8 @@ Produce a short editorial briefing, not a copied ranking. Keep every claim trace
 - Never copy the top N mechanically. Score the full candidate pool using the reader lens, then explain relevance in each summary. Rank is discovery input, not the editorial result.
 - Treat daily.dev's public pages as public editorial input. A personalized daily.dev feed requires an authorized session; state when it was unavailable.
 - Treat Product Hunt's Atom feed as launch discovery. If votes or rank are unavailable, say “今日精选” or “值得关注”; never guess placement.
-- Timestamp volatile metrics, especially GitHub `stars_today`.
-- Keep the expanded rendered issue readable in about 15 minutes.
+- Timestamp volatile metrics, especially GitHub total Stars; keep `stars_today` only as collection input and do not render it.
+- Keep the rendered issue readable in about 12 minutes.
 
 ## Output contract
 

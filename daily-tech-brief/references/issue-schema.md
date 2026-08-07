@@ -10,10 +10,9 @@
   "canonical_url": "https://brief.example.com/2026/08/07/",
   "brand": "CLAIRE'S MORNING SIGNALS",
   "headline": "One editorial thesis",
-  "dek": "15 分钟读完 · 19 条精选",
+  "dek": "12 分钟读完 · 14 条精选",
   "signals": [],
-  "github_trending": [],
-  "hello_github": [],
+  "repositories": [],
   "products": [],
   "topic": "One actionable content topic",
   "warnings": []
@@ -40,13 +39,12 @@
   "name": "owner/repo",
   "url": "https://github.com/owner/repo",
   "summary": "What it does and why it matters",
-  "metric": "+2,802 ★",
-  "metric_note": "today · 4,837 total",
+  "stars_total": "4,837",
   "source": "GitHub Trending"
 }
 ```
 
-`metric` and `metric_note` are optional. Never derive Product Hunt votes, ranks, or GitHub growth from unrelated values.
+`stars_total` is required and must come from the public GitHub repository page at collection time. The page renders only this total; do not show daily growth, HelloGitHub clicks, or secondary metric labels.
 
 ## Product
 
@@ -66,10 +64,9 @@
 ## Constraints
 
 - `signals`: 1-6 items.
-- `github_trending`: exactly 5 curated items by default.
-- `hello_github`: exactly 5 curated items by default.
+- `repositories`: exactly 5 items curated jointly from GitHub Trending and HelloGitHub.
 - `products`: exactly 5 curated items by default.
-- Keep GitHub Trending and HelloGitHub separate; do not merge them into a single repository list.
+- Order `repositories` by reader relevance, not source rank or Star count.
 - All selected items need an absolute HTTP(S) URL.
 - Every product needs a local `./filename.ext` icon and an absolute `icon_source_url`.
 - `canonical_url` must use `/YYYY/MM/DD/` and end with `/`.

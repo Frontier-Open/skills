@@ -100,12 +100,8 @@ h1 em { color: var(--accent); font-style: normal; }
 .repo h3 { margin: 0 0 7px; font: 800 18px/1.2 ui-monospace, monospace; letter-spacing: -0.02em; }
 .repo p { margin: 0; color: var(--ink3); font-size: 14px; line-height: 1.55; }
 .repo-stat { justify-self: end; text-align: right; font-family: ui-monospace, monospace; }
-.repo-stat strong { display: block; color: var(--accent); font-size: 18px; }
-.repo-today { display: flex; align-items: baseline; justify-content: flex-end; gap: 9px; white-space: nowrap; }
-.repo-today strong { display: inline-flex; align-items: baseline; gap: 5px; }
+.repo-stat strong { display: inline-flex; align-items: baseline; gap: 5px; color: var(--accent); font-size: 18px; white-space: nowrap; }
 .repo-star { font-family: Arial, sans-serif; font-size: 21px; line-height: 1; }
-.repo-period { color: var(--ink3); font-size: 10px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; }
-.repo-stat small { display: block; color: var(--ink3); font-size: 10px; text-transform: uppercase; }
 
 .product { min-height: 235px; padding: 30px; border-radius: 22px; background: var(--cream); }
 .product:last-child:nth-child(odd) { grid-column: 1 / -1; }
@@ -131,7 +127,6 @@ footer .right { max-width: 530px; text-align: right; }
   .product:last-child:nth-child(odd) { grid-column: auto; }
   .repo { grid-template-columns: 38px 1fr; }
   .repo-stat { grid-column: 2; justify-self: start; text-align: left; }
-  .repo-today { justify-content: flex-start; }
   footer { flex-direction: column; }
   footer .right { text-align: left; }
 }

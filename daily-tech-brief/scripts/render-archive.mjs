@@ -108,7 +108,7 @@ const byYear = groupBy(issues, (issue) => issue.year);
 const byMonth = groupBy(issues, (issue) => `${issue.year}-${issue.month}`);
 const yearCards = [...byYear.entries()].map(([year, items]) => `<a class="year-card" href="/${year}/"><span>YEAR ARCHIVE</span><strong>${year}</strong><small>${items.length} ISSUES ↗</small></a>`).join("");
 const rootMonths = [...byMonth.entries()].map(([month, items]) => monthSection(month, items, true)).join("");
-const root = page({ canonicalPath: "/", title: "Claire's Morning Signals · 晨报档案馆", eyebrow: "Morning intelligence archive", heading: "每天一刻钟，<em>看见下一步。</em>", aside: "不是新闻搬运。这里保存每天从科技商业、开源社区与新产品中筛出的少数有效信号。", latestCard: true, content: `<div class="archive-title"><h2>按年份查看</h2><p>年度 · 月度 · 每日三级归档</p></div><div class="year-grid">${yearCards}</div><div class="archive-title"><h2>晨报档案馆</h2><p>按日期永久保存 · 由新到旧</p></div>${rootMonths}` });
+const root = page({ canonicalPath: "/", title: "Claire's Morning Signals · 晨报档案馆", eyebrow: "Morning intelligence archive", heading: "每天一小会儿，<em>看见下一步。</em>", aside: "不是新闻搬运。这里保存每天从科技商业、开源社区与新产品中筛出的少数有效信号。", latestCard: true, content: `<div class="archive-title"><h2>按年份查看</h2><p>年度 · 月度 · 每日三级归档</p></div><div class="year-grid">${yearCards}</div><div class="archive-title"><h2>晨报档案馆</h2><p>按日期永久保存 · 由新到旧</p></div>${rootMonths}` });
 await mkdir(dirname(outputPath), { recursive: true });
 await writeFile(outputPath, root, "utf8");
 

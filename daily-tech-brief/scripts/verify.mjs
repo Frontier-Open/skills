@@ -38,8 +38,7 @@ for (const [index, product] of issue.products.entries()) {
 
 const links = [
   ...issue.signals.map((item) => item.source_url),
-  ...issue.github_trending.map((item) => item.url),
-  ...issue.hello_github.map((item) => item.url),
+  ...issue.repositories.map((item) => item.url),
   ...issue.products.flatMap((item) => [item.url, item.icon_source_url]),
 ];
 for (const link of links) {
