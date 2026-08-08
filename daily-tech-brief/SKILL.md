@@ -46,10 +46,11 @@ Produce a short editorial briefing, not a copied ranking. Keep every claim trace
    node scripts/verify.mjs --issue issue.json --html public/2026/08/07/index.html
    ```
 
-11. Archive the final issue into the host repository's versioned structured history, then copy a 1.9:1 issue preview image to `public/YYYY/MM/DD/og.png`. Keep its URL date-specific so Feishu does not reuse an older cached preview.
+11. Archive the final issue into the host repository's versioned structured history, then render a 1.9:1 issue preview image to `public/YYYY/MM/DD/og.png`. Keep its URL date-specific so Feishu does not reuse an older cached preview.
 
    ```bash
    node scripts/archive-issue.mjs --issue issue.json --history-dir /path/to/brief/data/issues
+   python3 scripts/render-og.py --issue issue.json --out /path/to/brief/public/YYYY/MM/DD/og.png
    ```
 12. Rebuild the archive homepage after adding the issue:
 
