@@ -4,7 +4,7 @@
 
 Use this as judgment support, not a fake numerical certainty:
 
-- reader relevance: 40%
+- audience relevance: 40%
 - freshness: 20%
 - momentum: 20%
 - source credibility: 10%
@@ -19,15 +19,15 @@ Prefer fewer, stronger items. Do not fill a quota with weak candidates.
 - Treat a materially identical story as a repeat even when a different outlet, headline, ranking, or URL is used.
 - Use stable `dedupe_key` values and run `scripts/check-history.mjs` before publication. A failure blocks publishing and sending.
 
-## Reader lens
+## Audience lens
 
-Default interests for Claire / 玉婷:
+Default interests for Frontier World:
 
 - AI products and agents;
 - startups, business models, and consumer technology;
 - investment and industry structure;
-- content creation, podcasts, and personal brands;
-- overseas signals with practical relevance to Chinese founders.
+- content, media, creator businesses, and future work;
+- overseas signals with practical relevance to Chinese founders, builders, investors, and knowledge workers.
 
 ## Summary pattern
 
@@ -35,7 +35,7 @@ Each item should answer three questions:
 
 1. What happened or what does the project do?
 2. What reliable number or concrete feature supports it?
-3. Why should this reader care?
+3. Why should this broader audience care now?
 
 Use plain Chinese. Keep names and technical terms in their established English form.
 

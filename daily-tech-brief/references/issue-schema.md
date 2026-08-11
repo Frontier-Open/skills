@@ -8,7 +8,7 @@
   "timezone": "Asia/Shanghai",
   "generated_at": "2026-08-07T09:57:00+08:00",
   "canonical_url": "https://brief.example.com/2026/08/07/",
-  "brand": "CLAIRE'S MORNING SIGNALS",
+  "brand": "FRONTIER WORLD",
   "headline": "One editorial thesis",
   "dek": "10 分钟读完 · 10 条精选",
   "signals": [],
@@ -69,7 +69,7 @@
 - `signals`: 1-6 items.
 - `repositories`: exactly 4 items curated jointly from GitHub Trending and HelloGitHub.
 - `products`: exactly 2 curated items by default.
-- Order `repositories` by reader relevance, not source rank or Star count.
+- Order `repositories` by audience relevance, not source rank or Star count.
 - Every signal, repository, and product needs a stable `dedupe_key`. Reuse the same key for the same underlying story or project even when its title, source, rank, or URL parameters change.
 - No `dedupe_key`, normalized canonical URL, or normalized title/name may match any prior issue in the versioned history.
 - All selected items need an absolute HTTP(S) URL.

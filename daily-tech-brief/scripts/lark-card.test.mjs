@@ -18,7 +18,7 @@ const documentUrl = "https://example.feishu.cn/docx/doxcnTestDocument";
 test("renders a compact Feishu card with an uploaded cover", () => {
   const card = buildLarkCard(issue, { imageKey: "img_v3_test", documentUrl });
   assert.equal(card.header.template, "orange");
-  assert.equal(card.header.title.content, "Claire 的科技早报 · 2026.08.07");
+  assert.equal(card.header.title.content, "Frontier World · 科技早报 · 2026.08.07");
   assert.equal(card.elements[0].tag, "img");
   assert.equal(card.elements[0].img_key, "img_v3_test");
   assert.equal(card.elements.at(-1).actions[0].url, documentUrl);

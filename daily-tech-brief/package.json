@@ -7,6 +7,7 @@
     "test": "node --test scripts/*.test.mjs",
     "render:archive": "node scripts/render-archive.mjs",
     "render:lark-card": "node scripts/render-lark-card.mjs",
+    "render:wechat": "node scripts/render-wechat.mjs",
     "validate:skill": "python3 /Users/chenjie/.codex/skills/.system/skill-creator/scripts/quick_validate.py ."
   }
 }

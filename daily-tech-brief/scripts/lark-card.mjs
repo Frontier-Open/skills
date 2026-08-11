@@ -105,7 +105,7 @@ export function buildLarkCard(issue, { imageKey, documentUrl } = {}) {
       template: "orange",
       title: {
         tag: "plain_text",
-        content: `Claire 的科技早报 · ${dateLabel(issue.date)}`,
+        content: `Frontier World · 科技早报 · ${dateLabel(issue.date)}`,
       },
     },
     elements,

@@ -11,6 +11,7 @@ const valueOf = (flag) => {
 const publicDir = resolve(valueOf("--public-dir") || "public");
 const outputPath = resolve(valueOf("--out") || join(publicDir, "index.html"));
 const origin = new URL(valueOf("--origin") || "https://brief.clairesparlor.com").origin;
+const publication = "FRONTIER WORLD";
 
 const escapeHtml = (value = "") => String(value).replace(/[&<>"']/gu, (character) => ({
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
@@ -91,7 +92,7 @@ function page({ canonicalPath, title, eyebrow, heading, aside, content, latestCa
   const selected = latestCard ? `<a class="latest" href="${escapeHtml(latest.url)}"><div class="latest-image"><img src="${escapeHtml(latest.image)}" alt="${escapeHtml(latest.headline)}"></div><div class="latest-copy"><div class="latest-label">LATEST ISSUE · ${escapeHtml(dateParts(latest.date).long)}</div><h2>${escapeHtml(latest.headline)}</h2><p>${escapeHtml(latest.description)}</p><div class="latest-cta"><span>阅读全文 · 约 ${escapeHtml(latestMinutes)}</span><span>↗</span></div></div></a>` : "";
   const canonical = `${origin}${canonicalPath}`;
   const crumbs = canonicalPath === "/" ? '<a href="/">全部</a>' : `<a href="/">全部</a><span>/</span>${canonicalPath.split("/").filter(Boolean).map((part, index, parts) => `<a href="/${parts.slice(0, index + 1).join("/")}/">${escapeHtml(part)}</a>${index < parts.length - 1 ? "<span>/</span>" : ""}`).join("")}`;
-  return `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)}</title><meta name="description" content="Claire 的科技、商业、开源与产品晨报归档。"><meta name="robots" content="noindex,nofollow,noarchive"><link rel="canonical" href="${canonical}"><meta property="og:type" content="website"><meta property="og:title" content="${escapeHtml(title)}"><meta property="og:description" content="科技、商业、开源与产品晨报归档。"><meta property="og:url" content="${canonical}"><meta property="og:image" content="${origin}${latest.image}"><style>${css}</style></head><body><main class="page"><header><div class="topline"><a class="brand" href="/"><i class="dot"></i>CLAIRE'S MORNING SIGNALS</a><div class="counter">${issues.length} ISSUES · SINCE ${escapeHtml(issues.at(-1).date)}</div></div><nav class="crumbs">${crumbs}</nav><div class="intro"><div><div class="eyebrow">${escapeHtml(eyebrow)}</div><h1>${heading}</h1></div><aside>${escapeHtml(aside)}</aside></div></header>${selected}${content}<footer class="footer"><span>CLAIRE'S MORNING SIGNALS</span><span>TECHMEME · DAILY.DEV · GITHUB · HELLOGITHUB · PRODUCT HUNT</span></footer></main></body></html>`;
+  return `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)}</title><meta name="description" content="Frontier World 的科技、商业、开源与产品晨报归档。"><meta name="robots" content="noindex,nofollow,noarchive"><link rel="canonical" href="${canonical}"><meta property="og:type" content="website"><meta property="og:title" content="${escapeHtml(title)}"><meta property="og:description" content="科技、商业、开源与产品晨报归档。"><meta property="og:url" content="${canonical}"><meta property="og:image" content="${origin}${latest.image}"><style>${css}</style></head><body><main class="page"><header><div class="topline"><a class="brand" href="/"><i class="dot"></i>${publication}</a><div class="counter">${issues.length} ISSUES · SINCE ${escapeHtml(issues.at(-1).date)}</div></div><nav class="crumbs">${crumbs}</nav><div class="intro"><div><div class="eyebrow">${escapeHtml(eyebrow)}</div><h1>${heading}</h1></div><aside>${escapeHtml(aside)}</aside></div></header>${selected}${content}<footer class="footer"><span>${publication}</span><span>TECHMEME · DAILY.DEV · GITHUB · HELLOGITHUB · PRODUCT HUNT</span></footer></main></body></html>`;
 }
 
 function groupBy(items, keyOf) {
@@ -108,13 +109,13 @@ const byYear = groupBy(issues, (issue) => issue.year);
 const byMonth = groupBy(issues, (issue) => `${issue.year}-${issue.month}`);
 const yearCards = [...byYear.entries()].map(([year, items]) => `<a class="year-card" href="/${year}/"><span>YEAR ARCHIVE</span><strong>${year}</strong><small>${items.length} ISSUES ↗</small></a>`).join("");
 const rootMonths = [...byMonth.entries()].map(([month, items]) => monthSection(month, items, true)).join("");
-const root = page({ canonicalPath: "/", title: "Claire's Morning Signals · 晨报档案馆", eyebrow: "Morning intelligence archive", heading: "每天一小会儿，<em>看见下一步。</em>", aside: "不是新闻搬运。这里保存每天从科技商业、开源社区与新产品中筛出的少数有效信号。", latestCard: true, content: `<div class="archive-title"><h2>按年份查看</h2><p>年度 · 月度 · 每日三级归档</p></div><div class="year-grid">${yearCards}</div><div class="archive-title"><h2>晨报档案馆</h2><p>按日期永久保存 · 由新到旧</p></div>${rootMonths}` });
+const root = page({ canonicalPath: "/", title: "Frontier World · 科技晨报档案馆", eyebrow: "Frontier intelligence archive", heading: "每天一小会儿，<em>看见下一步。</em>", aside: "不是新闻搬运。这里保存每天从科技商业、开源社区与新产品中筛出的少数有效信号。", latestCard: true, content: `<div class="archive-title"><h2>按年份查看</h2><p>年度 · 月度 · 每日三级归档</p></div><div class="year-grid">${yearCards}</div><div class="archive-title"><h2>晨报档案馆</h2><p>按日期永久保存 · 由新到旧</p></div>${rootMonths}` });
 await mkdir(dirname(outputPath), { recursive: true });
 await writeFile(outputPath, root, "utf8");
 
 for (const [year, yearIssues] of byYear) {
   const yearMonths = [...byMonth.entries()].filter(([month]) => month.startsWith(`${year}-`)).map(([month, items]) => monthSection(month, items, true)).join("");
-  const yearHtml = page({ canonicalPath: `/${year}/`, title: `${year} 年 · Claire 晨报归档`, eyebrow: "Year archive", heading: `${year} <em>年归档</em>`, aside: `${yearIssues.length} 期晨报，按月份和日期整理。`, content: `<div class="archive-title"><h2>${year} 年归档</h2><p>${yearIssues.length} ISSUES</p></div>${yearMonths}` });
+  const yearHtml = page({ canonicalPath: `/${year}/`, title: `${year} 年 · Frontier World 晨报归档`, eyebrow: "Year archive", heading: `${year} <em>年归档</em>`, aside: `${yearIssues.length} 期晨报，按月份和日期整理。`, content: `<div class="archive-title"><h2>${year} 年归档</h2><p>${yearIssues.length} ISSUES</p></div>${yearMonths}` });
   await mkdir(join(publicDir, year), { recursive: true });
   await writeFile(join(publicDir, year, "index.html"), yearHtml, "utf8");
 }
@@ -122,7 +123,7 @@ for (const [year, yearIssues] of byYear) {
 for (const [month, monthIssues] of byMonth) {
   const [year, monthNumber] = month.split("-");
   const monthLabel = new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "long", timeZone: "UTC" }).format(new Date(`${month}-01T00:00:00Z`));
-  const monthHtml = page({ canonicalPath: `/${year}/${monthNumber}/`, title: `${monthLabel} · Claire 晨报归档`, eyebrow: "Month archive", heading: `${year} 年 <em>${Number(monthNumber)} 月</em>`, aside: `${monthIssues.length} 期晨报，按日期由新到旧排列。`, content: `<div class="archive-title"><h2>${year} 年 ${Number(monthNumber)} 月</h2><p>${monthIssues.length} ISSUES</p></div>${monthSection(month, monthIssues)}` });
+  const monthHtml = page({ canonicalPath: `/${year}/${monthNumber}/`, title: `${monthLabel} · Frontier World 晨报归档`, eyebrow: "Month archive", heading: `${year} 年 <em>${Number(monthNumber)} 月</em>`, aside: `${monthIssues.length} 期晨报，按日期由新到旧排列。`, content: `<div class="archive-title"><h2>${year} 年 ${Number(monthNumber)} 月</h2><p>${monthIssues.length} ISSUES</p></div>${monthSection(month, monthIssues)}` });
   await mkdir(join(publicDir, year, monthNumber), { recursive: true });
   await writeFile(join(publicDir, year, monthNumber, "index.html"), monthHtml, "utf8");
 }

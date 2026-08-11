@@ -1,6 +1,6 @@
 ---
 name: daily-tech-brief
-description: Collect, curate, fact-check, render, publish, and prepare delivery of a personalized daily technology briefing from Techmeme, daily.dev, GitHub Trending, HelloGitHub, and Product Hunt. Use when Codex is asked to create a morning tech digest, refresh an existing issue, produce a sourced HTML/PNG briefing, maintain a dated briefing archive, or prepare a Feishu/Lark delivery card for a technology-news workflow.
+description: Collect, curate, fact-check, render, publish, and prepare delivery of a public-facing daily technology briefing from Techmeme, daily.dev, GitHub Trending, HelloGitHub, and Product Hunt. Use when Codex is asked to create a morning tech digest, refresh an existing issue, produce a sourced HTML/PNG briefing or WeChat Official Account article, maintain a dated briefing archive, or prepare a Feishu/Lark delivery card for a technology-news workflow.
 ---
 
 # Daily Tech Brief
@@ -9,7 +9,7 @@ Produce a short editorial briefing, not a copied ranking. Keep every claim trace
 
 ## Workflow
 
-1. Resolve the issue date, timezone, reader profile, output directory, and delivery channel. Default to the user's local date and timezone.
+1. Resolve the issue date, timezone, publication audience, output directory, and delivery channel. Default to the user's local date and timezone. Use `FRONTIER WORLD` as the public brand unless the user explicitly requests another publication.
 2. Collect current candidates:
 
    ```bash
@@ -20,9 +20,9 @@ Produce a short editorial briefing, not a copied ranking. Keep every claim trace
 3. Read [editorial-policy.md](references/editorial-policy.md). Read [issue-schema.md](references/issue-schema.md) before writing issue JSON. Load every prior structured issue from the host briefing repository before selecting candidates.
 4. Curate a focused issue. Default composition:
    - 4 technology/business signals;
-   - 4 repositories selected jointly from GitHub Trending and HelloGitHub, ordered by reader relevance rather than source rank;
+   - 4 repositories selected jointly from GitHub Trending and HelloGitHub, ordered by audience relevance rather than source rank;
    - 2 Product Hunt products selected from the wider feed;
-   - 1 actionable topic for the reader.
+   - 1 actionable topic for the audience.
 5. Reject anything already published in a prior issue. Compare the candidate's canonical URL, normalized title/name, and required `dedupe_key` against the complete issue history. A repeated project, product, article, or materially identical story is not allowed even if its rank, metric, headline wording, or discovery source changed. Replace repeats before continuing.
 6. Open or fetch the selected source pages when a summary depends on details not present in collected metadata. Prefer primary reporting links over aggregator permalinks when both are available.
 7. Write a valid `issue.json`. Give every signal, repository, and product a stable `dedupe_key`. Attribute every item with its source fields. Include metrics only when the source exposes them explicitly. For every Product Hunt selection, download the real project icon from its Product Hunt page into the dated issue directory; store its local `./filename.ext` path as `icon` and the original asset URL as `icon_source_url`.
@@ -61,6 +61,16 @@ Produce a short editorial briefing, not a copied ranking. Keep every claim trace
 13. Preview the homepage and issue at desktop plus 383 px, 430 px, 654 px, 660 px, 868 px, and 1024 px viewports when browser tooling is available. Reject horizontal overflow, clipped text, or multi-line section labels caused by layout constraints. Keep the header brand on one line and its dot perfectly circular. Stack every section heading as three left-aligned rows: section number, title, then note; do not use vertical transforms to align mixed scripts. Merge GitHub Trending and HelloGitHub into one four-item repository section ordered by reader relevance. In repository rows, align the numeric index to the visible title glyphs and show only the current total Star count; do not show daily growth, clicks, source labels, or secondary metric rows. Keep each Product Hunt icon and title in one flex row and use the real local project icon. Keep the reading-time summary beneath the main headline. Present the final prompt as a fourth section: place `04 / THINK`, `今日思考`, and its note in the same external section-heading block used by the first three sections; only the topic text belongs inside the colored card. Do not render a redundant source badge strip above the sections.
 14. For Feishu/Lark delivery, read [lark-delivery.md](references/lark-delivery.md). Create a Feishu cloud document from the generated `brief.md` using user identity, upload the issue image, and render the card with both the canonical webpage URL and the cloud-document URL.
 15. Separate generation from outward actions. Before sending, confirm the destination, exact card, both links, and sending identity. Preserve existing hosting architecture and dated URLs.
+16. When a WeChat Official Account edition is requested, read [wechat-edition.md](references/wechat-edition.md). Rewrite the verified issue around one editorial thesis instead of copying the ten-item briefing, then render the structured draft:
+
+   ```bash
+   node scripts/render-wechat.mjs \
+     --article drafts/wechat/YYYY/MM/DD/wechat-article.json \
+     --out-html drafts/wechat/YYYY/MM/DD/wechat.html \
+     --out-markdown drafts/wechat/YYYY/MM/DD/wechat.md
+   ```
+
+   Generate a separate crop-safe 2.35:1 cover for this edition. Treat all WeChat outputs as drafts unless publication is explicitly authorized.
 
 ## Editorial decisions
 
@@ -83,6 +93,10 @@ issue.json                    curated, sourced issue data
 public/YYYY/MM/DD/index.html  canonical dated issue
 public/YYYY/MM/DD/brief.md    generated Markdown text edition
 public/YYYY/MM/DD/og.png      issue-specific link-preview image
+drafts/wechat/YYYY/MM/DD/wechat-article.json structured WeChat article draft
+drafts/wechat/YYYY/MM/DD/wechat.md WeChat text draft
+drafts/wechat/YYYY/MM/DD/wechat.html inline-style WeChat editor edition
+drafts/wechat/YYYY/MM/DD/wechat-cover.jpg crop-safe WeChat cover
 data/issues/YYYY/MM/DD.json   versioned private history used by the duplicate gate
 public/YYYY/index.html        generated year archive
 public/YYYY/MM/index.html     generated month archive
@@ -99,7 +113,7 @@ Use `assets/issue.example.json` as a structural starter, not as content. `assets
 - Link each dated issue back to `/` so readers can reach the archive from a shared issue URL.
 - Keep the header date compact as `YYYY.MM.DD`; do not show a generation time there. Label the final editorial prompt as section `04 / THINK` with title `今日思考`.
 - Keep the footer compact: show the update date and a short data-freshness note, not collection details or source limitations.
-- Name the site consistently as `Claire's Morning Signals` in both header and footer. Format Feishu card dates as `YYYY.MM.DD`, without Chinese year/month/day characters.
+- Name the site consistently as `Frontier World` in the header, footer, archive metadata, Feishu card, Markdown edition, social image, and WeChat edition. Format Feishu card dates as `YYYY.MM.DD`, without Chinese year/month/day characters.
 - Render the Product Hunt project's real icon beside its title from a local dated asset; never substitute generated initials when a source icon is available.
 - Set a canonical URL and social-preview metadata for the dated page.
 - If the briefing is private-by-link, add `noindex,nofollow,noarchive`. Allow preview crawlers in `robots.txt`; otherwise Feishu may not read the page metadata. Clarify that this is not access control.

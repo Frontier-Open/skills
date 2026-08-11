@@ -3,7 +3,7 @@ import test from "node:test";
 import { buildMarkdown } from "./markdown.mjs";
 
 const issue = {
-  brand: "CLAIRE'S MORNING SIGNALS",
+  brand: "FRONTIER WORLD",
   date: "2026-08-07",
   dek: "10 分钟读完 · 10 条精选",
   headline: "今日信号",
@@ -30,7 +30,7 @@ const issue = {
 
 test("renders a dated ten-item Markdown edition with four numbered sections", () => {
   const markdown = buildMarkdown(issue);
-  assert.match(markdown, /^# CLAIRE'S MORNING SIGNALS · 2026\.08\.07/mu);
+  assert.match(markdown, /^# FRONTIER WORLD · 2026\.08\.07/mu);
   assert.match(markdown, /10 分钟读完 · 10 条精选/u);
   assert.match(markdown, /## 04 \/ THINK · 今日思考/u);
   assert.equal((markdown.match(/^### \d{2} ·/gmu) || []).length, 4);

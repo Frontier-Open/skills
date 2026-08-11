@@ -5,7 +5,7 @@ Use an interactive card when the recipient should scan the thesis and open the f
 ## Create the cloud-document edition
 
 1. Generate `brief.md` from the final issue JSON. Its first and only level-one heading must include the issue date.
-2. Resolve the user identity's `my_library` space and list its root nodes. Find exactly one root node titled `Claire's Morning Signals`; this is the permanent briefing directory. Do not create the issue in Drive root or use `drive +move` as a substitute.
+2. Resolve the user identity's `my_library` space and list its root nodes. Find exactly one configured permanent briefing directory. The legacy directory may still be titled `Claire's Morning Signals` until it is renamed through an explicitly authorized migration. Do not create the issue in Drive root or use `drive +move` as a substitute.
 3. List the children of that directory. If a child for `YYYY-MM-DD` already exists, update and reuse it rather than creating a duplicate. Otherwise, create the document directly under the directory's wiki node token:
 
    ```bash
