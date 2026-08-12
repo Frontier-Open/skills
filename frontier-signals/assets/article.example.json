@@ -1,0 +1,228 @@
+{
+  "schema_version": 1,
+  "series": "Frontier Signals",
+  "publisher": "Frontier World",
+  "author": "Frontier World",
+  "id": "2026-08-12/example-signal",
+  "date": "2026-08-12",
+  "slug": "example-signal",
+  "timezone": "Asia/Shanghai",
+  "generated_at": "2026-08-12T09:00:00+08:00",
+  "status": "draft",
+  "mode": "quick",
+  "format": "analysis",
+  "title": "一个具体变化，正在重写下一步",
+  "title_candidates": [
+    {
+      "type": "factual",
+      "text": "一个具体变化，正在重写下一步",
+      "claim_check": "三条独立来源共同支持变化已经发生，并且正文首段给出具体证据。"
+    },
+    {
+      "type": "judgment",
+      "text": "真正改变竞争的，不只是技术本身",
+      "claim_check": "正文证明成本、组织与分配结构比单一性能指标更能解释竞争变化。"
+    },
+    {
+      "type": "question",
+      "text": "技术领先之后，下一场竞争发生在哪里？",
+      "claim_check": "文章明确回答下一场竞争发生在成本、组织与分配结构，并给出可验证指标。"
+    }
+  ],
+  "subtitle": "用三条经过核验的事实，解释一个值得行动的结构性变化。",
+  "thesis": "技术变化只有进入成本、组织与分配结构，才会真正改变竞争。",
+  "reader_payoff": "读者将知道该观察哪些领先指标，以及下一步应该建设什么能力。",
+  "hook": {
+    "event": "三个相互独立的公开信号同时显示，技术能力正从演示进入真实业务流程。",
+    "tension": "性能提升很快，但多数团队仍没有把它转化成稳定的成本和组织优势。",
+    "judgment": "真正重写竞争的不是一次模型更新，而是技术进入成本、组织与分配结构。"
+  },
+  "excerpt": "Frontier Signals 从当天新闻中提炼一个有证据、有判断、能行动的信号。",
+  "reading_minutes": 7,
+  "word_count": 1760,
+  "canonical_url": "https://signals.frontierworld.ai/2026/08/12/example-signal/",
+  "story_keys": [
+    "example-event-one-2026-08",
+    "example-event-two-2026-08",
+    "example-event-three-2026-08"
+  ],
+  "angle_key": "technology-cost-organization-distribution-2026-08",
+  "continuation_of": null,
+  "material_update": null,
+  "counterargument": {
+    "claim": "当前变化可能只是短期产品热度，并未形成稳定的结构性优势。",
+    "evidence": "现阶段仍有部署成本、可靠性和组织改造速度等限制。",
+    "boundary": "如果未来两个观察周期内单位任务成本和真实采用率没有改善，本文判断需要下调。",
+    "response": "因此文章只判断竞争重心正在移动，不宣称胜负已经确定。",
+    "source_ids": ["source-2", "source-3"]
+  },
+  "watchlist": [
+    {
+      "indicator": "同一真实任务的单位完成成本是否连续下降",
+      "why_it_matters": "这能区分演示性进步和可持续的生产力变化。",
+      "source_ids": ["source-1", "source-3"]
+    },
+    {
+      "indicator": "企业是否把试点改成跨团队的稳定流程",
+      "why_it_matters": "组织采用范围决定技术能否形成可复制优势。",
+      "source_ids": ["source-2"]
+    }
+  ],
+  "intro": [
+    "先用一个具体事实进入问题，并在第一屏告诉读者为什么现在值得看。",
+    "随后明确本文判断，不把新闻清单伪装成文章。"
+  ],
+  "intro_source_ids": ["source-1", "source-2", "source-3"],
+  "sections": [
+    {
+      "label": "01",
+      "title": "先看发生了什么",
+      "role": "evidence",
+      "paragraphs": [
+        "说明第一组事实，并区分官方信息、媒体报道和作者解释。"
+      ],
+      "source_ids": ["source-1"],
+      "callout": "一个值得被记住、且能够被证据支持的原创判断。",
+      "image": {
+        "path": "./source-chart.png",
+        "alt": "支持第一组事实的原始数据图",
+        "caption": "原始数据说明变化已经进入可观察阶段。",
+        "credit": "Primary Source",
+        "source_url": "https://example.com/source-1",
+        "purpose": "evidence",
+        "rights": "Source-provided editorial use with attribution",
+        "generated": false
+      }
+    },
+    {
+      "label": "02",
+      "title": "真正变化的是机制",
+      "role": "mechanism",
+      "paragraphs": [
+        "把第二、第三组事实放进同一条因果链，解释它们为什么不是偶然并列。"
+      ],
+      "source_ids": ["source-2", "source-3"],
+      "image": {
+        "path": "./mechanism-diagram.png",
+        "alt": "技术变化进入成本、组织与分配结构的机制图",
+        "caption": "从技术能力到竞争优势，需要经过成本与组织两个转换环节。",
+        "credit": "Frontier World",
+        "purpose": "explanation",
+        "rights": "Original Frontier World editorial diagram",
+        "generated": true,
+        "prompt_note": "Original explanatory diagram based only on verified article facts"
+      }
+    },
+    {
+      "label": "03",
+      "title": "它会改变谁的下一步",
+      "role": "implication",
+      "paragraphs": [
+        "把判断落到目标读者可以观察或采取的行动。"
+      ],
+      "source_ids": ["source-1", "source-3"],
+      "points": [
+        "观察一个能够验证本文判断的领先指标。",
+        "停止一个只消耗注意力、不能产生复利的动作。"
+      ]
+    }
+  ],
+  "conclusion": {
+    "title": "写在最后",
+    "paragraphs": [
+      "总结判断的边界与现实意义，不重复全文。"
+    ],
+    "source_ids": ["source-2", "source-3"],
+    "question": "如果这个变化继续发生，你最应该提前建设的资产是什么？"
+  },
+  "sources": [
+    {
+      "id": "source-1",
+      "chain_id": "primary-source-one",
+      "publisher": "Primary Source",
+      "title": "Official announcement",
+      "url": "https://example.com/source-1",
+      "published_at": "2026-08-11T08:00:00+08:00",
+      "accessed_at": "2026-08-12T08:10:00+08:00",
+      "source_type": "primary"
+    },
+    {
+      "id": "source-2",
+      "chain_id": "credible-newsroom-report",
+      "publisher": "Credible Newsroom",
+      "title": "Reported context",
+      "url": "https://example.com/source-2",
+      "published_at": "2026-08-11T10:00:00+08:00",
+      "accessed_at": "2026-08-12T08:20:00+08:00",
+      "source_type": "reporting"
+    },
+    {
+      "id": "source-3",
+      "chain_id": "research-lab-data",
+      "publisher": "Research Lab",
+      "title": "Supporting data",
+      "url": "https://example.com/source-3",
+      "published_at": "2026-08-10T09:00:00+08:00",
+      "accessed_at": "2026-08-12T08:30:00+08:00",
+      "source_type": "primary"
+    }
+  ],
+  "fact_check": [
+    {
+      "claim": "第一组公开事实已经发生。",
+      "kind": "fact",
+      "status": "verified",
+      "source_ids": ["source-1"],
+      "high_risk": false,
+      "independent_source_count": 1,
+      "note": "以官方公告的发布时间和原文为准。"
+    },
+    {
+      "claim": "多组事实共同指向成本和组织机制正在改变。",
+      "kind": "interpretation",
+      "status": "qualified",
+      "source_ids": ["source-1", "source-2", "source-3"],
+      "high_risk": false,
+      "independent_source_count": 3,
+      "note": "这是 Frontier Signals 的综合判断，正文保留适用边界。"
+    },
+    {
+      "claim": "目标读者应该持续观察单位任务成本和组织采用范围。",
+      "kind": "recommendation",
+      "status": "qualified",
+      "source_ids": ["source-2", "source-3"],
+      "high_risk": false,
+      "independent_source_count": 2,
+      "note": "建议来自当前证据，不宣称能够保证未来结果。"
+    }
+  ],
+  "media": {
+    "cover": {
+      "path": "./wechat-cover.jpg",
+      "alt": "Frontier Signals 文章封面",
+      "credit": "Frontier World",
+      "purpose": "brand",
+      "rights": "Original Frontier World deterministic brand asset",
+      "generated": true,
+      "prompt_note": "Deterministic Frontier World brand cover"
+    },
+    "og": {
+      "path": "./og.png",
+      "alt": "Frontier Signals 社交分享图",
+      "credit": "Frontier World",
+      "purpose": "brand",
+      "rights": "Original Frontier World deterministic brand asset",
+      "generated": true,
+      "prompt_note": "Deterministic Frontier World brand cover"
+    }
+  },
+  "distribution": {
+    "web": { "status": "draft", "url": null },
+    "wechat": { "status": "draft", "draft_id": null },
+    "feishu": { "status": "draft", "document_url": null }
+  },
+  "warnings": [
+    "STRUCTURAL EXAMPLE ONLY: replace placeholder prose and recompute word_count before review."
+  ],
+  "corrections": []
+}

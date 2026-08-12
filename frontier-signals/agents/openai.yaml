@@ -1,0 +1,4 @@
+interface:
+  display_name: "Frontier Signals"
+  short_description: "Publish a sourced daily AI and technology article"
+  default_prompt: "Use $frontier-signals to research, write, render, verify, and prepare today’s Frontier Signals article for WeChat, web, and Feishu."

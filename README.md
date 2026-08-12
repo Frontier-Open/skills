@@ -1,6 +1,6 @@
-# Frontier Open Skills
+# Frontier World Skills
 
-Reusable, production-oriented Codex Skills maintained by [Frontier Open](https://github.com/Frontier-Open).
+Reusable, production-oriented Codex Skills maintained by Frontier World in the current [FrontierOpen](https://github.com/FrontierOpen) GitHub organization.
 
 This repository contains self-contained skill packages for repeatable research, content, publishing, and automation workflows. Each skill combines operating instructions with the scripts, references, and assets required to run and validate it.
 
@@ -8,7 +8,8 @@ This repository contains self-contained skill packages for repeatable research, 
 
 | Skill | Description | Status |
 | --- | --- | --- |
-| [`daily-tech-brief`](./daily-tech-brief/) | Collects, curates, verifies, renders, archives, and prepares delivery of a sourced daily technology briefing. | Active |
+| [`frontier-signals`](./frontier-signals/) | Turns current AI and technology news into a sourced daily article and prepares consistent WeChat, web, and Feishu editions. | Active |
+| [`daily-tech-brief`](./daily-tech-brief/) | Collects and renders a ten-item daily technology briefing. Retained while scheduled workflows migrate to Frontier Signals. | Legacy |
 
 ## Repository structure
 
@@ -29,14 +30,14 @@ Every top-level skill directory is designed to remain independently understandab
 Clone the repository:
 
 ```bash
-git clone https://github.com/Frontier-Open/skills.git
+git clone https://github.com/FrontierOpen/skills.git
 cd skills
 ```
 
 Install a skill by copying or linking its directory into the skills directory used by your Codex environment. For example:
 
 ```bash
-ln -s /path/to/skills/daily-tech-brief /path/to/codex-home/skills/daily-tech-brief
+ln -s /path/to/skills/frontier-signals /path/to/codex-home/skills/frontier-signals
 ```
 
 Open the selected skill's `SKILL.md` for its prerequisites, workflow, and validation commands.
@@ -52,10 +53,10 @@ Open the selected skill's `SKILL.md` for its prerequisites, workflow, and valida
 
 ## Validation
 
-Run the checks defined by the individual skill before opening a pull request. For `daily-tech-brief`:
+Run the checks defined by the individual skill before opening a pull request. For `frontier-signals`:
 
 ```bash
-cd daily-tech-brief
+cd frontier-signals
 npm test
 ```
 

@@ -1,0 +1,14 @@
+{
+  "name": "frontier-signals-skill",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test scripts/*.test.mjs",
+    "validate:skill": "python3 ${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-creator/scripts/quick_validate.py .",
+    "render:article": "node scripts/render-article.mjs",
+    "render:archive": "node scripts/render-archive.mjs",
+    "render:lark-card": "node scripts/render-lark-card.mjs",
+    "preview": "node scripts/preview.mjs"
+  }
+}
