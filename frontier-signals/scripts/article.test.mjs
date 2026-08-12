@@ -28,6 +28,19 @@ test("renders consistent Markdown, WeChat, and web editions", () => {
   assert.match(web, /noindex,nofollow,noarchive/u);
   assert.match(web, /Frontier Signals/u);
   assert.match(web, />QUICK</u);
+  assert.match(web, /-apple-system/u);
+  assert.match(web, /font-optical-sizing: auto/u);
+  assert.match(web, /a:focus-visible/u);
+  assert.match(web, /prefers-reduced-motion: reduce/u);
+  assert.match(web, /prefers-reduced-transparency: reduce/u);
+  assert.match(web, /prefers-contrast: more/u);
+  assert.match(web, /min-width: 2\.75rem/u);
+  assert.match(web, /loading="lazy" decoding="async"/u);
+  assert.match(web, /viewport-fit=cover/u);
+  assert.match(web, /class="skip-link" href="#article-body"/u);
+  assert.match(web, /<article class="article-page">/u);
+  assert.match(web, /class="article-body" id="article-body" tabindex="-1"/u);
+  assert.doesNotMatch(web, /<figure class="hero-media">/u);
 });
 
 test("published web editions are indexable", () => {
