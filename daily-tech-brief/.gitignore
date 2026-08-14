@@ -1,9 +1,0 @@
-.DS_Store
-node_modules/
-work/
-public/
-issue.json
-*.log
-.env
-.env.*
-!.env.example
