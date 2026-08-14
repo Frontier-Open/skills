@@ -1,138 +1,221 @@
 ---
 name: frontier-signals
-description: Research, write, render, verify, archive, and prepare distribution of Frontier Signals, Frontier World’s daily public AI and technology article series. Use when Codex is asked to turn current AI or technology news into a sourced QUICK article or DEEP analysis; create brand-consistent WeChat Official Account, web, or Feishu editions; maintain the Signals article archive; or run the daily multi-channel publishing workflow.
+description: 为 Frontier World 的品牌官号栏目 Frontier Signals 研究、选题、撰写、配图、校验并准备发布 AI、大模型、Agent、相关公司与创始人新闻。Use when Codex needs to追踪当天新闻、提出可证伪观点、生成自然但不个人化的公众号报道或分析、制作微信 HTML/Markdown 稿件包、审查来源与图片权利、复核易变产品状态，或在获得明确授权后把已批准版本保存到公众号草稿箱。也用于复盘和修订 Frontier Signals 的标题、正文语气、结构、排版与发布流程。
 ---
 
 # Frontier Signals
 
-Publish one useful argument, not a rewritten news list. Use current events as evidence for a clear thesis aimed at Chinese founders, builders, investors, creators, and knowledge workers.
+把一条前沿新闻做成一篇能让读者迅速看懂全貌、记住一个判断、愿意继续讨论的文章。
 
-## Workflow
+Frontier Signals 属于 Frontier World / 前沿之境。默认面向关注 AI 的创业者、产品与技术从业者、投资人、内容创作者和好奇的普通读者。保持编辑部的事实纪律，也保留 Frontier Signals 的编辑判断。
 
-1. Resolve the publication date in `Asia/Shanghai`, audience, review deadline, repository root, and authorized delivery targets. Use `Frontier Signals` as the series and `Frontier World` as publisher and author.
-2. Collect a broad research pool:
+## 默认编辑口径
 
-   ```bash
-   node scripts/collect.mjs --out work/raw.json
-   ```
+- 把它写成品牌官号，不写成作者个人号。默认直接陈述判断，不用“我看”“我觉得”，也不为了亲近频繁喊“你”或“我们”。
+- 自然来自解释顺序、具体材料和句子节奏。完整表达优先，不为短而短，不把主语、条件、比较关系或因果拆成碎句。
+- 新闻评论默认解释事件与判断，不自动变成教程、迁移建议或读者工作流。只有任务明确要求实测、教程或决策评估时才给操作步骤。
+- 不用“先别急着”“真正要争的”“从来不是”等假聊天或翻案句制造张力。判断直接说，依据放在附近。
+- 不写“不是……而是……”“不只是……而是……”“看似……其实……”及其变体。也不凭通用行业常识补出“默认执行层”“高频任务主力”“竞争焦点改变”等当前材料没有证明的结论。
+- 检索路径、媒体启发、模型卡阅读过程、自问自答和作者内心独白只留在内部材料。公开正文只保留核实后的事实、必要归属与压缩后的编辑判断。
+- 30 秒速读、The Signal、固定结尾提问、迁移问题和互动卡都不是栏目模板。文章讲完就停。
+- 五件具体材料没有形成可讲清的过程时，不输出标题和正文。先研究；无法研究就缩小题目或明确材料不足，不能用占位符、通用场景和抽象趋势补稿。
 
-   Continue when one source fails and preserve the failure under `warnings`. Never replace missing current data with stale content.
-3. Read [editorial-playbook.md](references/editorial-playbook.md), [source-and-fact-checking.md](references/source-and-fact-checking.md), and [article-schema.md](references/article-schema.md). Load prior `research.json` and `article.json` history before choosing the angle.
-4. Select a single thesis and choose one editorial mode:
-   - `quick`: 1,400–2,200 Chinese characters, at least 3 independent sources, 3–4 sections, 5–8 minutes, and 3–5 production visuals;
-   - `deep`: 3,200–5,000 characters, at least 6 independent sources, 4–6 sections, 12–18 minutes, and 5–8 production visuals. Require a credible counterargument and the condition that would make the thesis wrong.
+## 开工前
 
-   Use `quick` by default. Choose `deep` only when the evidence supports a structural question, competing explanations, and forward indicators. When no single story is strong enough, connect only closely related events that support the same thesis. Never fill the day with unrelated headlines.
-5. Verify claims from primary sources whenever available. Record a stable `story_key` for each underlying event, an `angle_key` for the article thesis, access timestamps, and source IDs used by every section. A material follow-up may revisit a story only with `continuation_of` and a concrete `material_update`.
-6. Write one canonical `article.json` using `assets/article.example.json`. Set `mode`, `word_count`, three typed `title_candidates`, `reader_payoff`, structured `hook`, `counterargument`, two or three observable `watchlist` items, and a material-claim `fact_check` ledger. Keep legacy `format` only as a renderer bridge: use `analysis` for new `quick` articles and `deep-dive` for `deep`. All channel editions must derive from this file; do not independently rewrite WeChat, web, and Feishu versions.
-7. Plan media with [media-policy.md](references/media-policy.md). Count production visuals as `media.cover` + `media.og` + section images: require 3–5 for `quick` and 5–8 for `deep`. With the current renderer this means 1–3 inline section images for `quick` and 3–6 for `deep`. These required ranges supersede the earlier typical-count examples in `brand-and-layout.md`; its visual-purpose and layout rules still apply. Every visual must pass the purpose test. Prefer primary-source charts, product screenshots, timelines, or original explanatory diagrams over decorative imagery. Permit at most one purely editorial AI illustration, label generated media, and keep local copies, alt text, captions, credits, rights notes, and source URLs.
-8. Validate the article and history before rendering:
+1. 确认当前时间与时区。新闻默认使用 Asia/Shanghai。
+2. 确认工作目录、目标发布日期、文章负责人和允许执行的外部动作。
+3. 检查同一事件是否已有稿件。发现旧稿时先读取其来源与状态，不覆盖未跟踪文件，不把同一轮更新拆成多篇重复新闻。
+4. 读取所需参考：
+   - 每次都读 [editorial-identity.md](references/editorial-identity.md) 与 [research-desk.md](references/research-desk.md)。
+   - 使用 AIHOT 做热点发现时读 [aihot-discovery.md](references/aihot-discovery.md)，并按本机 aihot Skill 的当前说明调用。
+   - 选题或校准竞品时读 [competitor-field-notes.md](references/competitor-field-notes.md)。
+   - 动笔前读 [writing-playbook.md](references/writing-playbook.md)。
+   - 配图与排版时读 [visual-system.md](references/visual-system.md)。
+   - 触碰公众号草稿箱或发布动作前读 [wechat-release.md](references/wechat-release.md)。
 
-   ```bash
-   node scripts/validate-article.mjs --article article.json --normative
-   node scripts/check-article-history.mjs --article article.json --history-dir /path/to/signals/data/articles
-   ```
+## 一条文章的完整流程
 
-   Any out-of-range mode budget, unsupported material claim, unresolved `fact_check`, missing source, duplicate angle, invalid media credit, title promise not supported in the first 20% of the article, missing `deep` counterargument, or repeated story without a material update blocks review and publication. The existing validator protects the renderer contract; apply the stricter gates in [article-schema.md](references/article-schema.md) and `schemas/article.schema.json` as the normative new-article contract.
-9. Render all text editions from the same canonical file:
+### 1. 捕捉信号
 
-   ```bash
-   node scripts/render-article.mjs \
-     --article article.json \
-     --media-root media/YYYY/MM/DD/slug \
-     --web public/YYYY/MM/DD/slug/index.html \
-     --markdown public/YYYY/MM/DD/slug/article.md \
-     --wechat-html drafts/wechat/YYYY/MM/DD/slug/wechat.html \
-     --wechat-markdown drafts/wechat/YYYY/MM/DD/slug/wechat.md
-   ```
+优先检查最近 24 小时，必要时扩展到 72 小时。只追踪这些范围：
 
-10. Generate deterministic brand covers when an original editorial illustration is not warranted:
+- AI 模型、Agent、基础设施和开发工具；
+- 相关公司、创始人、融资、组织与商业动作；
+- 会改变产品、工作、资本配置或监管判断的研究与政策。
 
-    ```bash
-    python3 scripts/render-covers.py \
-      --article article.json \
-      --og public/YYYY/MM/DD/slug/og.png \
-      --wechat drafts/wechat/YYYY/MM/DD/slug/wechat-cover.jpg
-    ```
+当 aihot Skill 可用时，用它查询当前热点榜和过去 24 小时精选。热点榜决定“现在大家在追什么”，精选池补充较新的单条资讯。AIHOT 只负责发现、聚合线索和追踪事件演化；公开稿件不复制其摘要，不把其排行或热度写成事件本身的证据。
 
-    Then require the generated channel media from their actual output roots:
+为候选事件写一张 pitch card：
 
-    ```bash
-    node scripts/validate-article.mjs \
-      --article article.json \
-      --normative \
-      --require-media \
-      --web-root public/YYYY/MM/DD/slug \
-      --wechat-root drafts/wechat/YYYY/MM/DD/slug
-    ```
+~~~text
+发生了什么
+目前最硬的一条事实
+谁会受影响
+多数报道漏掉了什么
+现在写的理由
+~~~
 
-11. Archive `article.json`, rebuild the web archive, RSS, and sitemap, then run site checks. Read [brand-and-layout.md](references/brand-and-layout.md) and [channel-publishing.md](references/channel-publishing.md) before any outward action.
-12. Start an HTTP preview before opening browser tooling; never navigate the browser directly to `file://` artifacts:
+按照读者价值、事件后果、证据质量、时效、Frontier Signals 独有角度各打 1–5 分。任何一项证据质量低于 3，先不写。当天没有合格事件时，宁可不发。
 
-    ```bash
-    node scripts/preview.mjs --root /path/to/signals --port 4174
-    ```
+### 2. 建立材料包
 
-    Preview the web edition at 390, 768, 1024, and 1440 px. Preview the WeChat draft under `/drafts/...` at 375 and 677 px. Reject horizontal overflow, clipped text, broken local images, missing captions, or channel-specific wording drift. If browser policy still blocks the HTTP preview, keep the article in `draft` and report the blocked gate.
-13. Create or update the date-and-slug Feishu document in the configured `Frontier Signals` wiki space, optionally under a configured parent node, with user identity and the explicitly configured CLI profile. Use the article ID for idempotency. Insert local images through the Feishu media workflow, fetch the document back, and confirm title, sections, sources, images, `space_id`, and parent placement. Do not widen sharing automatically.
-14. Treat the WeChat edition as a draft. Only save it to an explicitly confirmed Official Account draft box when the available browser or official connector permits the action. Publishing or mass sending always requires a separate explicit confirmation.
-15. Commit and push the article repository, deploy the web edition, and confirm the canonical page, Markdown, cover, RSS, sitemap, and archive return success before delivery. Record channel IDs and URLs in `publication.json` so retries are idempotent.
-16. Send the review card only to the configured reviewer. Use a date-and-slug idempotency key. Never send partial output after research, validation, Feishu, deployment, or authentication failure.
+先研究，再定结论。至少收集五件能推动文章的具体材料。每件记录：
 
-## Editorial standard
+~~~text
+claim / source / source_type / published_at / checked_at
+direct_support / uncertainty / related_claim_ids
+~~~
 
-- Open with a concrete change, tension, and judgment within the first 120–180 Chinese characters.
-- Make the thesis explicit, specific, and falsifiable. Each section must advance it with evidence rather than repeat it.
-- State `reader_payoff` before drafting: what the target reader will understand, notice, or do differently.
-- Draft factual, judgment, and question titles, then choose only after checking every title claim against the evidence.
-- Use 40–90-character paragraphs and informative section titles. Keep one idea per paragraph and normally stay below 120 characters.
-- Structure each section as judgment → evidence → mechanism → implication. A `deep` article must present the strongest credible objection before its conclusion.
-- Distinguish confirmed facts, attributed reporting, interpretation, and recommendation.
-- End by returning to the thesis, naming the practical implication, and giving two or three observable indicators. Use a specific open question only when it follows from the argument.
-- Use curiosity without clickbait. Never promise certainty that the evidence does not support.
-- Keep product and company names in their established form. Write clear Chinese around them.
+这是一道开稿门槛。五件材料必须属于当前事件并能共同推动叙述；“速度、成本、能力、稳定性、未来”这类抽象类别不算。达不到时继续研究或缩小题目，不写样稿。
 
-## Publication gate
+优先使用官方公告、产品文档、论文、代码仓库、财报、监管文件和完整访谈。媒体报道负责补背景与交叉核对。聚合号和社媒热度只用于发现线索。
 
-Do not advance an article to `reviewed`, `approved`, or `published` unless all checks pass:
+涉及融资、估值、人员变动、安全、法律、市场份额或声誉的说法，至少需要两条独立证据链。只有单一匿名消息时，降低标题承诺并清楚归属。
 
-- `quick`: 1,400–2,200 Chinese characters, at least 3 sources, and 3–5 production visuals;
-- `deep`: 3,200–5,000 characters, at least 6 sources, 5–8 production visuals, and one rendered counterargument section;
-- every material factual claim appears in `fact_check` with supporting source IDs and `verified` or explicitly bounded `qualified` status;
-- consequential, disputed, reputation-sensitive, market-moving, or safety claims have at least two independent sources;
-- the selected title is one of `title_candidates`, and its promise is evidenced within the first 20% of the article;
-- `hook` supplies event, tension, and judgment; `reader_payoff` is concrete; `watchlist` contains two or three observable indicators;
-- every image has a declared purpose, local path, alt text, credit, and rights/source metadata; no decorative image is used merely to reach the count;
-- facts, attributed reporting, interpretation, and recommendation are visibly distinct;
-- warnings are resolved or explicitly remove the affected claim. Do not publish around a failed gate.
+### 3. 选择文章形态
 
-## Output contract
+只选一种：
 
-```text
-work/raw.json                                      collected source candidates and warnings
-work/research.json                                 curated facts and story keys
-article.json                                       canonical article source
-data/articles/YYYY/MM/DD/slug/article.json         versioned article history
-media/YYYY/MM/DD/slug/source/                      preserved source visuals
-public/YYYY/MM/DD/slug/index.html                  canonical web article
-public/YYYY/MM/DD/slug/article.md                  Feishu-ready Markdown edition
-public/YYYY/MM/DD/slug/og.png                      1.91:1 social preview
-drafts/wechat/YYYY/MM/DD/slug/wechat.html          all-inline WeChat edition
-drafts/wechat/YYYY/MM/DD/slug/wechat.md            WeChat text edition
-drafts/wechat/YYYY/MM/DD/slug/wechat-cover.jpg     900×383 cover
-publication/YYYY/MM/DD/slug.json                   per-channel status and remote IDs
-public/index.html                                  article archive
-public/rss.xml                                     RSS feed
-public/sitemap.xml                                 web sitemap
-lark-card.json                                     send-ready reviewer card
-```
+- bulletin：900–1,500 个中文字符。适合单一发布、模型更新或明确公司动作。至少 3 个来源、1 个一手来源、2 张正文图。
+- report：1,600–2,800 个中文字符。适合需要解释机制、竞争关系和实际影响的新闻。至少 4 个来源、2 个一手来源、3 张正文图。
+- profile：2,400–4,200 个中文字符。适合创始人、公司转向或长周期故事。至少 6 个来源、时间线和 4 张正文图。
 
-## Safety and publication rules
+封面不计入正文图。资料撑不起对应篇幅就降级，不用重复解释补字数。
 
-- Preserve source URLs and factual provenance; never fabricate metrics, quotes, or access.
-- Do not bypass login, CAPTCHA, paywall, robots rules, rate limiting, or platform safety restrictions.
-- Keep secrets, browser state, recipient IDs, and authentication errors out of repositories and public files.
-- Separate `draft`, `reviewed`, `approved`, and `published` states. Rendering is not approval.
-- Keep canonical URLs permanent after publication. Correct factual errors transparently instead of silently replacing the record.
-- Default the official web edition to indexable only after publication approval. Draft previews must remain private or `noindex`.
-- Preserve legacy URLs with explicit permanent redirects during migrations.
+### 4. 形成观点
+
+先写一句可以被未来事实推翻的判断，再写正文。观点必须同时具备：
+
+- 一组已经核实的事实；
+- 这些事实之间的机制；
+- 对具体角色的影响；
+- 当前不知道的部分；
+- 会让判断改变的观察指标。
+
+把反方最强的解释写准确。Frontier Signals 可以有立场，不能把立场伪装成事实。
+
+### 5. 写出第一屏与完整正文
+
+第一屏让读者在 30 秒内得到：
+
+1. 发生了什么；
+2. 为什么今天值得知道；
+3. Frontier Signals 的判断。
+
+后续正文覆盖这些信息：
+
+1. 事件与时间线；
+2. 产品、技术或商业机制；
+3. 公司、创始人和竞争关系；
+4. 受影响的人与现实限制；
+5. 反方解释、未知和下一步指标。
+
+以上是信息覆盖清单，不是固定段数、小标题或公开结构。让材料决定文章怎样分段。
+
+使用 assets/signal.example.json 建立唯一稿源 signal.json。所有渠道版本都从它渲染，不分别改写事实。
+
+研究过程和公开表达必须分层。检索路径、阅读顺序、某家媒体如何启发选题、作者的自问自答与犹豫，以及从事实到结论的逐步推演，只写进 `signal.json`、`source-notes.md` 或编辑记录，不进入公开正文。公开稿只保留核实后的信息、压缩后的判断，以及读者理解判断所必需的证据。
+
+正文是否写来源名称，取决于说法的证据状态，不取决于作者从哪里看到它。已经核实、无争议且可以独立陈述的事实直接写。直接引语、发布方自报跑分或承诺、单一媒体独家、匿名消息、争议或指控，以及无法独立确认的说法，必须保留最小必要归属。媒体只用于发现或交叉核对时，不写“某媒体也这么说”；模型卡或文档只承担证据作用时，不用“模型卡写得很明白”之类句子展示研究过程。
+
+`brief_30s` 是可选字段，不是每篇文章的固定模块。短 bulletin 和正文已经足够紧凑的 report 默认省略；只有较长 report 或 profile 确实需要一张阅读地图时才使用，而且不能重复 thesis 和开头。
+
+`thesis.core` 是内部必填判断，不代表公开稿必须出现独立判断卡。新闻与第一节已经自然交代判断时，在稿源设置 `show_thesis: false`；只有判断卡能提供正文没有重复的阅读入口时才公开。
+
+### 6. 设计图片
+
+每张图只承担一种主要任务：证明事实、展示产品、交代人物或建立必要的概念入口。优先顺序：
+
+1. 官方网页、公告、文档、产品界面的截图，以及官方原始图表和论文图；
+2. 权利明确的人物或现场图片；
+3. 只有官方素材无法承担必要的非证据型概念表达时，才用 `imagegen` 生成最多一张无文字原创图。
+
+保存本地副本并记录来源、权利、裁切、alt、说明和用途。事实卡不作为 Frontier Signals 的正文图片。AI 图不能充当事实证据，也不能复刻网页、表格、跑分、价格、接口字段或其他需要精确呈现的内容；不要为凑图片数量调用 `imagegen`。
+
+官方截图缩到 375 px 后字太小时，按顺序处理：
+
+1. 用移动端视口重新截图；
+2. 紧裁到必要原文，同时保留来源、标题、日期、单位和判断所需上下文；
+3. 换用另一张可读的官方页面或官方原图；
+4. 仍不合适就不放这张图，不制作事实卡，也不用 AI 图冒充证据。
+
+媒体字段 `generated` 只表示是否由生成式 AI 产生。网页截图、官方图片和确定性排版封面均填 `false`。
+
+### 7. 校验并渲染
+
+在 Skill 目录运行：
+
+~~~bash
+python3 scripts/validate_signal.py /path/to/signal.json
+python3 scripts/render_wechat.py \
+  /path/to/signal.json \
+  --html /path/to/wechat.html \
+  --markdown /path/to/wechat.md
+python3 scripts/validate_signal.py /path/to/signal.json --require-media
+~~~
+
+校验失败时修改稿件，不绕过规则。随后检查自然中文，删除翻案腔、商业黑话、模型路标、无来源细节和重复结论。
+
+渲染成稿时，判断边界留在 `signal.json` 供编辑校验，不单独显示提示框；正文各节不显示“本节依据”索引，图片不显示图注或“图源”行。完整来源与事实台账保留在 `signal.json` 和 `source-notes.md`；公开成稿通过 `public_source_ids` 只选择 3–5 条最关键的一手或延伸来源，文末以简洁的“延伸阅读”标题链接呈现，不使用数字脚注、访问日期或长引用清单。report 的主标题要覆盖全文主要信息面，不局限于某一节；封面必须直接出现报道主体名称。
+
+`discussion_question` 是可选的内部编辑提示，不是公开成稿的固定模块。渲染器不自动生成“留给你一个问题”或互动卡。正文确实需要一个问题时，把它自然写进最后一段；文章已经结束时直接收住。
+
+### 8. 复核易变状态
+
+送审、保存远端草稿和正式发布前，重新核对所有会快速变化的事实：网页、App、聊天端、API、地区、账号档位、Stable 或 Preview、价格、配额与开放范围。更新每条相关证据的 `checked_at`。
+
+用户在登录状态下直接看到的产品界面可以作为有时间边界的直接观察，但单个账号可用不等于所有地区和账号已经全量开放。它与旧稿冲突时，以新状态修订正文、标题、claim ledger、source-notes 和内容哈希，记录更正时间；不要保留互相矛盾的旧句。
+
+### 9. 预览
+
+使用 HTTP 预览，不直接把 file:// 当成发布效果。至少检查 375 px 和 677 px：
+
+- 标题、导语和小标题没有孤字；
+- 正文字号和行距适合手机；
+- 图片清晰，无横向溢出，图片上下没有残留图注或脚注；
+- 来源可读，链接没有串位；
+- 封面在微信裁切后仍保留主体；
+- HTML 与 Markdown 的事实、判断和图片顺序一致。
+
+### 10. 交付与发布
+
+默认交付本地公众号稿件包：
+
+~~~text
+signal.json
+source-notes.md
+wechat.html
+wechat.md
+wechat-cover.jpg
+images/
+release.json
+~~~
+
+保存到远端草稿箱属于外部写入，只能在目标公众号、已批准版本和授权会话都明确后执行。草稿箱成功不等于公开发布。
+
+正式发布或群发前必须再次取得明确确认。正文、标题、封面或关键图片在确认后发生变化，原确认失效。
+
+## 稿件通过线
+
+以下任意一项不满足，保持 draft：
+
+- 第一屏没有事件、读者价值和明确判断；
+- 标题承诺超出正文证据；
+- 重要事实未进入 claim ledger；
+- 高风险说法只有一条证据链；
+- 观点没有边界或反方解释；
+- 材料不足却用通用行业常识、占位符或可套用到任何模型的趋势判断补出正文；
+- 图片无来源、权利或用途说明；
+- 文章只换一种说法重复新闻；
+- 公开正文暴露检索路径、阅读顺序、媒体对作者的启发、自问自答或推演草稿；
+- 应当归属的自报、独家或争议说法被改写成无主语事实；
+- 品牌官号被写成个人号，或为了口语感频繁使用第一、第二人称和故意碎句；
+- 把普通新闻评论写成教程、迁移清单或读者工作流；
+- 出现未解决的时间、价格、版本或身份冲突；
+- 送审前没有重新核对易变的入口、地区、账号档位、版本状态、价格或开放范围；
+- 公众号预览未通过；
+- 外部动作缺少对应授权。
+
+## 语气
+
+清醒、好奇、具体，有一点锋芒。允许幽默，幽默必须来自事实本身。不要模仿任何竞品的句子、标题或视觉模板。Frontier Signals 的目标不是显得最激动，而是让读者更快拥有一个可靠判断。

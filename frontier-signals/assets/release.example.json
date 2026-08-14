@@ -1,0 +1,20 @@
+{
+  "article_id": "YYYY-MM-DD/slug",
+  "content_hash": null,
+  "target_account": null,
+  "wechat": {
+    "status": "local_draft",
+    "draft_id": null,
+    "publish_id": null,
+    "published_url": null,
+    "saved_at": null,
+    "published_at": null,
+    "sent_at": null
+  },
+  "approvals": {
+    "editor_reviewed_at": null,
+    "owner_approved_at": null,
+    "approved_hash": null
+  },
+  "last_error": null
+}

@@ -1,16 +1,21 @@
 {
+  "brand": "Frontier World",
   "series": "Frontier Signals",
-  "publisher": "Frontier World",
+  "chinese_brand": "前沿之境",
   "colors": {
-    "blue": "#155EEF",
+    "passage_blue": "#155EEF",
     "ink": "#101114",
     "canvas": "#FAFAF7",
     "white": "#FFFFFF",
     "mist": "#E8EEFF",
     "muted": "#5D626D"
   },
-  "typography": {
-    "display": "-apple-system, BlinkMacSystemFont, SF Pro Display, PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif",
-    "body": "-apple-system, BlinkMacSystemFont, SF Pro Text, PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif"
+  "wechat": {
+    "cover_width": 900,
+    "cover_height": 383,
+    "content_max_width": 677,
+    "mobile_preview_width": 375,
+    "body_font_px": 16,
+    "body_line_height": 1.9
   }
 }
