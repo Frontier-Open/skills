@@ -13,7 +13,7 @@ from typing import Any
 from validate_signal import validate_record
 
 
-PUBLIC_SOURCE_LIMIT = 5
+PUBLIC_SOURCE_LIMIT = 3
 
 
 def _e(value: Any) -> str:
@@ -27,26 +27,95 @@ def _md(value: Any) -> str:
     return text
 
 
+def _bold_spans(section: dict[str, Any], paragraph_number: int) -> list[str]:
+    spans = section.get("bold_spans", [])
+    if not isinstance(spans, list):
+        return []
+    return [
+        span["text"]
+        for span in spans
+        if isinstance(span, dict)
+        and span.get("paragraph") == paragraph_number
+        and isinstance(span.get("text"), str)
+    ]
+
+
+def _html_text(text: str, bold_texts: list[str]) -> str:
+    if not bold_texts:
+        return _e(text)
+    parts: list[str] = []
+    cursor = 0
+    ranges = sorted(
+        (
+            (text.find(bold_text), bold_text)
+            for bold_text in bold_texts
+            if text.find(bold_text) >= 0
+        ),
+        key=lambda item: item[0],
+    )
+    for start, bold_text in ranges:
+        if start < cursor:
+            continue
+        parts.append(_e(text[cursor:start]))
+        parts.append(
+            '<strong style="color:#101114;font-weight:700;">'
+            f'{_e(bold_text)}</strong>'
+        )
+        cursor = start + len(bold_text)
+    parts.append(_e(text[cursor:]))
+    return "".join(parts)
+
+
+def _markdown_text(text: str, bold_texts: list[str]) -> str:
+    if not bold_texts:
+        return _md(text)
+    parts: list[str] = []
+    cursor = 0
+    ranges = sorted(
+        (
+            (text.find(bold_text), bold_text)
+            for bold_text in bold_texts
+            if text.find(bold_text) >= 0
+        ),
+        key=lambda item: item[0],
+    )
+    for start, bold_text in ranges:
+        if start < cursor:
+            continue
+        parts.append(_md(text[cursor:start]))
+        parts.append(f'**{_md(bold_text)}**')
+        cursor = start + len(bold_text)
+    parts.append(_md(text[cursor:]))
+    return "".join(parts)
+
+
 def _html_media(media: dict[str, Any], *, cover: bool = False) -> str:
     margin = "22px 0 28px" if cover else "24px 0"
-    return (
+    parts = [
         f'<figure style="margin:{margin};padding:0;">'
         f'<img src="{_e(media["path"])}" alt="{_e(media["alt"])}" '
         'style="display:block;width:100%;max-width:100%;height:auto;margin:0;border-radius:4px;" />'
-        '</figure>'
-    )
+    ]
+    if not cover and media.get("show_caption") is True:
+        parts.append(
+            '<p style="margin:9px 4px 0;color:#5D626D;font-size:12px;line-height:1.65;text-align:left;">'
+            f'{_e(media["caption"])}</p>'
+        )
+    parts.append('</figure>')
+    return "".join(parts)
 
 
 def _public_sources(record: dict[str, Any]) -> list[dict[str, Any]]:
     """Return the small reader-facing subset while preserving the full evidence ledger."""
+    if record.get("show_public_sources") is not True:
+        return []
     sources = record["sources"]
     selected_ids = record.get("public_source_ids")
     if isinstance(selected_ids, list):
         sources_by_id = {source["id"]: source for source in sources}
         selected = [sources_by_id[source_id] for source_id in selected_ids if source_id in sources_by_id]
-        if selected:
-            return selected[:PUBLIC_SOURCE_LIMIT]
-    return sources[:PUBLIC_SOURCE_LIMIT]
+        return selected[:PUBLIC_SOURCE_LIMIT]
+    return []
 
 
 def render_html(record: dict[str, Any]) -> str:
@@ -106,31 +175,45 @@ def render_html(record: dict[str, Any]) -> str:
         parts.append(f'<section style="margin:{section_margin} 0 0;padding:0;">')
         if show_heading:
             parts.append(
-                f'<h2 style="margin:0 0 16px;color:#101114;font-size:22px;line-height:1.45;font-weight:730;text-wrap:balance;word-break:keep-all;overflow-wrap:normal;">{_e(section["heading"])}</h2>'
+                f'<h2 style="margin:0 0 16px;padding:0 0 0 12px;border-left:3px solid #155EEF;color:#101114;font-size:22px;line-height:1.45;font-weight:730;text-wrap:balance;word-break:keep-all;overflow-wrap:normal;">{_e(section["heading"])}</h2>'
             )
-        for paragraph in section["paragraphs"]:
-            parts.append(
-                f'<p style="margin:0 0 20px;color:#101114;font-size:16px;line-height:1.92;text-align:justify;">{_e(paragraph)}</p>'
-            )
-        for media_id in section["media_ids"]:
+        placements = section.get("media_placements")
+        placements_by_position: dict[int, list[str]] = {}
+        if isinstance(placements, list):
+            for placement in placements:
+                placements_by_position.setdefault(placement["after_paragraph"], []).append(
+                    placement["media_id"]
+                )
+        for media_id in placements_by_position.get(0, []):
             parts.append(_html_media(media_by_id[media_id]))
+        for paragraph_index, paragraph in enumerate(section["paragraphs"], start=1):
+            parts.append(
+                '<p style="margin:0 0 20px;color:#101114;font-size:16px;line-height:1.92;text-align:justify;">'
+                f'{_html_text(paragraph, _bold_spans(section, paragraph_index))}</p>'
+            )
+            for media_id in placements_by_position.get(paragraph_index, []):
+                parts.append(_html_media(media_by_id[media_id]))
+        if not isinstance(placements, list):
+            for media_id in section["media_ids"]:
+                parts.append(_html_media(media_by_id[media_id]))
         parts.append('</section>')
 
-    parts.extend(
-        [
-            '<section style="margin:38px 0 0;padding:24px 0 0;border-top:1px solid #E8EEFF;">',
-            '<h2 style="margin:0 0 15px;color:#101114;font-size:16px;font-weight:700;">延伸阅读</h2>',
-        ]
-    )
-    for source in sources:
-        parts.append(
-            f'<p id="source-{_e(source["id"])}" style="margin:0 0 11px;color:#5D626D;font-size:12px;line-height:1.7;">'
-            f'<a href="{_e(source["url"])}" style="color:#155EEF;text-decoration:underline;">{_e(source["title"])}</a>'
-            f'<span style="color:#5D626D;"> · {_e(source["publisher"])}</span></p>'
+    if sources:
+        parts.extend(
+            [
+                '<section style="margin:38px 0 0;padding:24px 0 0;border-top:1px solid #E8EEFF;">',
+                '<h2 style="margin:0 0 15px;color:#101114;font-size:16px;font-weight:700;">延伸阅读</h2>',
+            ]
         )
+        for source in sources:
+            public_label = source.get("public_label") or source["title"]
+            parts.append(
+                f'<p id="source-{_e(source["id"])}" style="margin:0 0 11px;color:#5D626D;font-size:12px;line-height:1.7;">'
+                f'<a href="{_e(source["url"])}" style="color:#155EEF;text-decoration:underline;">{_e(public_label)}</a></p>'
+            )
+        parts.append('</section>')
     parts.extend(
         [
-            '</section>',
             '<footer style="margin:34px 0 0;padding:18px 0 0;border-top:1px solid #E8EEFF;text-align:center;">',
             '<p style="margin:0;color:#155EEF;font-size:12px;font-weight:750;letter-spacing:0.16em;">FRONTIER WORLD</p>',
             '</footer>',
@@ -142,8 +225,11 @@ def render_html(record: dict[str, Any]) -> str:
     return "\n".join(parts) + "\n"
 
 
-def _markdown_media(media: dict[str, Any]) -> str:
-    return f'![{_md(media["alt"])}]({media["path"]})'
+def _markdown_media(media: dict[str, Any], *, cover: bool = False) -> str:
+    output = f'![{_md(media["alt"])}]({media["path"]})'
+    if not cover and media.get("show_caption") is True:
+        output += f'\n\n*{_md(media["caption"])}*'
+    return output
 
 
 def render_markdown(record: dict[str, Any]) -> str:
@@ -156,7 +242,7 @@ def render_markdown(record: dict[str, Any]) -> str:
         f'# {_md(record["headlines"]["primary"])}',
     ]
     if cover:
-        parts.extend(["", _markdown_media(cover)])
+        parts.extend(["", _markdown_media(cover, cover=True)])
 
     brief = record.get("brief_30s")
     if isinstance(brief, list) and brief:
@@ -179,14 +265,28 @@ def render_markdown(record: dict[str, Any]) -> str:
             parts.extend(["", f'## {_md(section["heading"])}', ""])
         else:
             parts.append("")
-        for paragraph in section["paragraphs"]:
-            parts.extend([_md(paragraph), ""])
-        for media_id in section["media_ids"]:
+        placements = section.get("media_placements")
+        placements_by_position: dict[int, list[str]] = {}
+        if isinstance(placements, list):
+            for placement in placements:
+                placements_by_position.setdefault(placement["after_paragraph"], []).append(
+                    placement["media_id"]
+                )
+        for media_id in placements_by_position.get(0, []):
             parts.extend([_markdown_media(media_by_id[media_id]), ""])
+        for paragraph_index, paragraph in enumerate(section["paragraphs"], start=1):
+            parts.extend([_markdown_text(paragraph, _bold_spans(section, paragraph_index)), ""])
+            for media_id in placements_by_position.get(paragraph_index, []):
+                parts.extend([_markdown_media(media_by_id[media_id]), ""])
+        if not isinstance(placements, list):
+            for media_id in section["media_ids"]:
+                parts.extend([_markdown_media(media_by_id[media_id]), ""])
 
-    parts.extend(["", "## 延伸阅读", ""])
-    for source in sources:
-        parts.append(f'- [{_md(source["title"])}]({source["url"]}) · {_md(source["publisher"])}')
+    if sources:
+        parts.extend(["", "## 延伸阅读", ""])
+        for source in sources:
+            public_label = source.get("public_label") or source["title"]
+            parts.append(f'- [{_md(public_label)}]({source["url"]})')
     parts.extend(["", "---", "", "**FRONTIER WORLD**", ""])
     return "\n".join(parts)
 

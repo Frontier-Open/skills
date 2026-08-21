@@ -20,7 +20,7 @@ from validate_signal import validate_record  # noqa: E402
 
 try:
     from PIL import Image, ImageDraw
-    from render_cover import HEIGHT, WIDTH, render_cover
+    from render_cover import HEIGHT, WIDTH, _font, _wrap, render_cover
 
     PIL_AVAILABLE = True
 except ImportError:
@@ -30,6 +30,37 @@ except ImportError:
 def load_json(path: Path) -> dict:
     with path.open("r", encoding="utf-8") as handle:
         return json.load(handle)
+
+
+def test_run_fixture() -> dict:
+    return {
+        "id": "T1",
+        "tested_at": "2026-08-14T12:00:00+08:00",
+        "access_scope": "公开预览版",
+        "region": "中国大陆",
+        "account_tier": "开发者测试账号",
+        "product_version": "0.1.0-rc.6",
+        "model_version": "示例模型 1.0",
+        "application_or_harness": "示例 Harness",
+        "task": "在干净仓库中修复一个带回归测试的解析错误",
+        "prompt_or_input": "tests/artifacts/T1/prompt.txt",
+        "acceptance_criteria": "原有测试和新增回归测试全部通过",
+        "tools": "文件读取、补丁写入与测试命令",
+        "permissions": "仅允许修改临时仓库，不允许联网",
+        "reasoning_mode": "默认",
+        "relevant_settings": "温度与并发沿用产品默认值",
+        "run_count": 3,
+        "duration": "分别为 8、9、8 分钟",
+        "tokens": "产品未提供",
+        "cost": "测试期未计费",
+        "result": "三次运行均通过验收测试",
+        "failures": "未观察到失败",
+        "retries": 0,
+        "manual_intervention": "每次仅确认文件写入权限",
+        "artifact_paths": ["tests/artifacts/T1/run-summary.json"],
+        "comparison_conditions": "非横向对比测试",
+        "limitations": "只覆盖一个仓库与一种任务",
+    }
 
 
 class ValidationTests(unittest.TestCase):
@@ -52,7 +83,6 @@ class ValidationTests(unittest.TestCase):
         self.assertFalse(result["ok"])
         self.assertFalse(result["publication_ready"])
         self.assertIn("headline.primary_not_candidate", codes)
-        self.assertIn("source.primary_count", codes)
         self.assertIn("claim.source_missing", codes)
         self.assertIn("format.body_length", codes)
         self.assertIn("media.inline_count", codes)
@@ -63,21 +93,39 @@ class ValidationTests(unittest.TestCase):
         self.assertFalse(result["gates"]["media"])
         self.assertFalse(result["gates"]["status"])
 
-    def test_hype_blacklist_rejects_fixed_amplifiers(self) -> None:
+    def test_emotional_headline_is_allowed_when_it_is_a_valid_candidate(self) -> None:
         record = deepcopy(load_json(ASSETS / "signal.example.json"))
         hype_title = "刚刚，OpenAI 彻底颠覆所有 AI 产品"
         record["headlines"]["primary"] = hype_title
         record["headlines"]["candidates"][0] = hype_title
 
         result = validate_record(record)
-        issues = [issue for issue in result["issues"] if issue["code"] == "headline.hype_blacklist"]
 
-        self.assertFalse(result["ok"])
-        self.assertEqual({"刚刚", "彻底颠覆"}, {issue["message"].split("“")[1].split("”")[0] for issue in issues})
+        self.assertTrue(result["ok"])
+        self.assertNotIn("headline.hype_blacklist", {issue["code"] for issue in result["issues"]})
+
+    def test_cover_headline_allows_complete_bilingual_title_up_to_32_characters(self) -> None:
+        record = deepcopy(load_json(ASSETS / "signal.example.json"))
+        title = "超 70 亿美元，Stripe 被曝收购 OpenRouter"
+        record["headlines"]["cover"] = title + "！"
+
+        accepted = validate_record(record)
+
+        self.assertEqual(len(record["headlines"]["cover"]), 32)
+        self.assertTrue(accepted["ok"])
+
+        record["headlines"]["cover"] += "！"
+        rejected = validate_record(record)
+
+        self.assertFalse(rejected["ok"])
+        self.assertIn("editorial.too_long", {issue["code"] for issue in rejected["issues"]})
 
     def test_public_source_selection_is_small_unique_and_resolvable(self) -> None:
         cases = (
-            (["S1", "S2"], "source.public_count"),
+            (["S1"], None),
+            (["S1", "S2", "S3"], None),
+            ([], "source.public_count"),
+            (["S1", "S2", "S3", "S404"], "source.public_count"),
             (["S1", "S1", "S2"], "source.public_duplicate"),
             (["S1", "S2", "S404"], "source.public_missing"),
             ("S1", "schema.type"),
@@ -85,10 +133,189 @@ class ValidationTests(unittest.TestCase):
         for value, expected_code in cases:
             with self.subTest(value=value):
                 record = deepcopy(load_json(ASSETS / "signal.example.json"))
+                record["show_public_sources"] = True
                 record["public_source_ids"] = value
                 result = validate_record(record)
                 codes = {issue["code"] for issue in result["issues"]}
-                self.assertIn(expected_code, codes)
+                if expected_code is None:
+                    self.assertNotIn("source.public_count", codes)
+                    self.assertNotIn("source.public_missing", codes)
+                else:
+                    self.assertIn(expected_code, codes)
+
+    def test_showing_public_sources_requires_explicit_selection(self) -> None:
+        record = deepcopy(load_json(ASSETS / "signal.example.json"))
+        record["show_public_sources"] = True
+        record.pop("public_source_ids")
+
+        result = validate_record(record)
+
+        self.assertIn("source.public_required", {issue["code"] for issue in result["issues"]})
+
+    def test_selected_public_source_uses_a_short_reader_facing_label(self) -> None:
+        record = deepcopy(load_json(ASSETS / "signal.example.json"))
+        record["show_public_sources"] = True
+        record["public_source_ids"] = ["S3"]
+        record["sources"][2].pop("public_label")
+
+        too_long = validate_record(record)
+        self.assertIn("source.public_label_length", {issue["code"] for issue in too_long["issues"]})
+
+        record["sources"][2]["public_label"] = "Azure 上线说明"
+        valid = validate_record(record, strict=True)
+        self.assertTrue(valid["ok"])
+
+    def test_bold_spans_are_exact_sparse_paragraph_anchors(self) -> None:
+        same_paragraph = deepcopy(load_json(ASSETS / "signal.example.json"))
+        same_paragraph["sections"][1]["bold_spans"].append(
+            {"paragraph": 3, "text": "会话状态、工具权限"}
+        )
+        same_codes = {issue["code"] for issue in validate_record(same_paragraph)["issues"]}
+        self.assertIn("section.bold_span_paragraph_limit", same_codes)
+
+        missing = deepcopy(load_json(ASSETS / "signal.example.json"))
+        missing["sections"][1]["bold_spans"][0]["text"] = "正文中不存在的重点"
+        missing_codes = {issue["code"] for issue in validate_record(missing)["issues"]}
+        self.assertIn("section.bold_span_missing", missing_codes)
+
+        ambiguous = deepcopy(load_json(ASSETS / "signal.example.json"))
+        ambiguous["sections"][1]["bold_spans"][0]["text"] = "统一模型"
+        ambiguous["sections"][1]["paragraphs"][2] += "统一模型仍需应用配合。"
+        ambiguous_codes = {issue["code"] for issue in validate_record(ambiguous)["issues"]}
+        self.assertIn("section.bold_span_ambiguous", ambiguous_codes)
+
+    def test_article_allows_at_most_six_bold_spans(self) -> None:
+        record = deepcopy(load_json(ASSETS / "signal.example.json"))
+        record["sections"][0]["bold_spans"] = [
+            {"paragraph": 1, "text": "2024 年 5 月 13 日"},
+            {"paragraph": 2, "text": "最容易被感知的变化是速度"},
+            {"paragraph": 3, "text": "发布并非当天开放所有能力"},
+            {"paragraph": 4, "text": "开发者侧的变化更直接"},
+            {"paragraph": 5, "text": "模型发布与云平台上架几乎同步"},
+        ]
+        record["sections"][2]["bold_spans"] = [
+            {"paragraph": 1, "text": "原生多模态也扩大了风险面"}
+        ]
+
+        result = validate_record(record)
+
+        self.assertIn("section.bold_span_article_limit", {issue["code"] for issue in result["issues"]})
+
+    def test_wechat_metadata_accepts_optional_empty_fields(self) -> None:
+        record = deepcopy(load_json(ASSETS / "signal.example.json"))
+        record["wechat"] = {
+            "author": "",
+            "digest": "",
+            "content_source_url": "",
+            "comments": {
+                "enabled": False,
+                "fans_only": False,
+            },
+        }
+
+        result = validate_record(record, strict=True)
+
+        self.assertTrue(result["ok"])
+        self.assertTrue(result["publication_ready"])
+
+    def test_wechat_metadata_is_required_and_platform_bounded(self) -> None:
+        cases = (
+            (
+                "missing",
+                lambda record: record.pop("wechat"),
+                ("schema.type", "$.wechat"),
+            ),
+            (
+                "author_too_long",
+                lambda record: record["wechat"].update(author="A" * 17),
+                ("wechat.author_too_long", "$.wechat.author"),
+            ),
+            (
+                "digest_too_long",
+                lambda record: record["wechat"].update(digest="A" * 121),
+                ("wechat.digest_too_long", "$.wechat.digest"),
+            ),
+            (
+                "author_not_normalized",
+                lambda record: record["wechat"].update(author=" Frontier World "),
+                ("wechat.text_not_normalized", "$.wechat.author"),
+            ),
+            (
+                "digest_not_single_line",
+                lambda record: record["wechat"].update(digest="第一行\n第二行"),
+                ("wechat.text_not_single_line", "$.wechat.digest"),
+            ),
+            (
+                "relative_source_url",
+                lambda record: record["wechat"].update(content_source_url="news/article"),
+                ("url.invalid", "$.wechat.content_source_url"),
+            ),
+            (
+                "source_url_too_long",
+                lambda record: record["wechat"].update(
+                    content_source_url="https://example.com/" + "a" * 1024
+                ),
+                ("wechat.content_source_url_too_long", "$.wechat.content_source_url"),
+            ),
+            (
+                "comment_flag_not_boolean",
+                lambda record: record["wechat"]["comments"].update(enabled=1),
+                ("schema.type", "$.wechat.comments.enabled"),
+            ),
+            (
+                "fans_only_without_comments",
+                lambda record: record["wechat"]["comments"].update(
+                    enabled=False,
+                    fans_only=True,
+                ),
+                (
+                    "wechat.comments_fans_only_requires_enabled",
+                    "$.wechat.comments.fans_only",
+                ),
+            ),
+        )
+        for name, mutate, expected in cases:
+            with self.subTest(name=name):
+                record = deepcopy(load_json(ASSETS / "signal.example.json"))
+                mutate(record)
+
+                result = validate_record(record)
+                issue_keys = {(issue["code"], issue["path"]) for issue in result["issues"]}
+
+                self.assertFalse(result["ok"])
+                self.assertIn(expected, issue_keys)
+
+    def test_wechat_fans_only_comments_are_valid_when_comments_are_enabled(self) -> None:
+        record = deepcopy(load_json(ASSETS / "signal.example.json"))
+        record["wechat"]["comments"] = {
+            "enabled": True,
+            "fans_only": True,
+        }
+
+        result = validate_record(record, strict=True)
+
+        self.assertTrue(result["ok"])
+        self.assertTrue(result["publication_ready"])
+
+    def test_wechat_topics_are_optional_and_platform_bounded(self) -> None:
+        cases = (
+            (["AI安全", "Anthropic"], None),
+            (["#AI安全"], "wechat.topic_format"),
+            (["A"], "wechat.topic_length"),
+            (["话题一", "话题二", "话题三", "话题四"], "schema.list_too_long"),
+            (["AI安全", "AI安全"], "schema.duplicate"),
+        )
+        for topics, expected_code in cases:
+            with self.subTest(topics=topics):
+                record = deepcopy(load_json(ASSETS / "signal.example.json"))
+                record["wechat"]["topics"] = topics
+                result = validate_record(record)
+                codes = {issue["code"] for issue in result["issues"]}
+                if expected_code is None:
+                    self.assertTrue(result["ok"])
+                else:
+                    self.assertFalse(result["ok"])
+                    self.assertIn(expected_code, codes)
 
     def test_profile_requires_its_length_sources_timeline_and_inline_media(self) -> None:
         record = deepcopy(load_json(ASSETS / "signal.example.json"))
@@ -140,6 +367,74 @@ class ValidationTests(unittest.TestCase):
         self.assertIn("media.ai_screenshot_forbidden", codes)
         self.assertIn("media.ai_inline_limit", codes)
 
+    def test_public_caption_flag_is_boolean_and_never_allowed_on_cover(self) -> None:
+        invalid_type = deepcopy(load_json(ASSETS / "signal.example.json"))
+        invalid_type["media"][1]["show_caption"] = "yes"
+        type_codes = {issue["code"] for issue in validate_record(invalid_type)["issues"]}
+        self.assertIn("schema.type", type_codes)
+
+        cover_caption = deepcopy(load_json(ASSETS / "signal.example.json"))
+        cover_caption["media"][0]["show_caption"] = True
+        cover_codes = {issue["code"] for issue in validate_record(cover_caption)["issues"]}
+        self.assertIn("media.cover_caption_forbidden", cover_codes)
+
+    def test_media_placements_must_be_complete_unique_and_in_range(self) -> None:
+        record = deepcopy(load_json(ASSETS / "signal.example.json"))
+        section = record["sections"][0]
+        section["media_placements"] = [
+            {"media_id": "M2", "after_paragraph": 99},
+            {"media_id": "M2", "after_paragraph": 1},
+        ]
+        codes = {issue["code"] for issue in validate_record(record)["issues"]}
+        self.assertIn("section.media_placement_position", codes)
+        self.assertIn("section.media_placement_duplicate", codes)
+
+        unlisted = deepcopy(load_json(ASSETS / "signal.example.json"))
+        unlisted["sections"][0]["media_placements"] = [
+            {"media_id": "M404", "after_paragraph": 1}
+        ]
+        unlisted_codes = {issue["code"] for issue in validate_record(unlisted)["issues"]}
+        self.assertIn("section.media_placement_unlisted", unlisted_codes)
+        self.assertIn("section.media_placement_incomplete", unlisted_codes)
+
+    def test_first_party_test_fact_uses_test_run_without_inventing_a_url(self) -> None:
+        record = deepcopy(load_json(ASSETS / "signal.example.json"))
+        record["test_runs"] = [test_run_fixture()]
+        tested_claim = record["claims"][0]
+        tested_claim["source_ids"] = []
+        tested_claim["test_run_ids"] = ["T1"]
+
+        result = validate_record(record, strict=True)
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["summary"]["test_runs"], 1)
+
+    def test_test_run_links_and_artifact_paths_fail_closed(self) -> None:
+        record = deepcopy(load_json(ASSETS / "signal.example.json"))
+        invalid_test_run = test_run_fixture()
+        invalid_test_run["artifact_paths"] = ["../outside.log"]
+        record["test_runs"] = [invalid_test_run]
+        record["claims"][0]["test_run_ids"] = ["T404"]
+
+        result = validate_record(record)
+        codes = {issue["code"] for issue in result["issues"]}
+
+        self.assertIn("test.artifact_path_invalid", codes)
+        self.assertIn("claim.test_run_missing", codes)
+        self.assertFalse(result["gates"]["sources"])
+
+    def test_quotes_still_require_a_public_source(self) -> None:
+        record = deepcopy(load_json(ASSETS / "signal.example.json"))
+        record["test_runs"] = [test_run_fixture()]
+        quoted_claim = record["claims"][0]
+        quoted_claim["kind"] = "quote"
+        quoted_claim["source_ids"] = []
+        quoted_claim["test_run_ids"] = ["T1"]
+
+        codes = {issue["code"] for issue in validate_record(record)["issues"]}
+
+        self.assertIn("claim.source_required", codes)
+
     def test_undated_living_source_uses_null_without_inventing_a_date(self) -> None:
         record = deepcopy(load_json(ASSETS / "signal.example.json"))
         record["sources"][1]["published_at"] = None
@@ -170,7 +465,9 @@ class RenderTests(unittest.TestCase):
         cls.record = load_json(ASSETS / "signal.example.json")
 
     def test_html_is_inline_only_and_contains_editorial_structure(self) -> None:
-        output = render_html(self.record)
+        record = deepcopy(self.record)
+        record["media"][1]["show_caption"] = True
+        output = render_html(record)
 
         self.assertTrue(output.startswith("<!doctype html>\n"))
         self.assertIn('<html lang="zh-CN">', output)
@@ -187,28 +484,89 @@ class RenderTests(unittest.TestCase):
         self.assertNotIn("<script", output.lower())
         self.assertNotIn("<h1", output.lower())
         self.assertIn("#155EEF", output)
+        self.assertIn(
+            '<h2 style="margin:0 0 16px;padding:0 0 0 12px;border-left:3px solid #155EEF;',
+            output,
+        )
         self.assertNotIn("30 秒速读", output)
         self.assertNotIn("<strong style=\"color:#101114;font-weight:650;\">判断边界</strong>", output)
         self.assertNotIn("本节依据", output)
         self.assertNotIn("<figcaption", output.lower())
         self.assertNotIn("图源", output)
+        self.assertIn("GPT-4o 的文本和图像能力首先进入 ChatGPT", output)
+        self.assertNotIn("微软在发布同日宣布 GPT-4o 进入 Azure OpenAI Service 预览", output)
         self.assertNotIn("Frontier Signals 编辑部", output)
         self.assertNotIn("更新于", output)
-        self.assertIn('id="source-S1"', output)
+        self.assertNotIn("延伸阅读", output)
+        self.assertNotIn('id="source-S1"', output)
+        self.assertIn(
+            '<strong style="color:#101114;font-weight:700;">统一模型减少接口间的信息损失</strong>',
+            output,
+        )
 
-    def test_markdown_contains_signal_and_sources_without_fixed_discussion_block(self) -> None:
-        output = render_markdown(self.record)
+    def test_markdown_contains_signal_without_default_sources_or_fixed_discussion_block(self) -> None:
+        record = deepcopy(self.record)
+        record["media"][1]["show_caption"] = True
+        output = render_markdown(record)
 
         self.assertIn("# OpenAI 发布 GPT-4o", output)
         self.assertIn("## The Signal", output)
-        self.assertIn("## 延伸阅读", output)
+        self.assertNotIn("## 延伸阅读", output)
         self.assertNotIn("留给你一个问题", output)
         self.assertNotIn("访问于", output)
         self.assertNotIn("判断边界", output)
         self.assertNotIn("本节依据", output)
         self.assertNotIn("图源", output)
+        self.assertIn("*GPT-4o 的文本和图像能力首先进入 ChatGPT*", output)
+        self.assertNotIn("*微软在发布同日宣布 GPT-4o 进入 Azure OpenAI Service 预览*", output)
         self.assertNotIn("Frontier Signals 编辑部", output)
         self.assertNotIn("更新于", output)
+        self.assertIn("**统一模型减少接口间的信息损失**", output)
+        self.assertIn("## 发生了什么", output)
+
+    def test_bold_span_escapes_html_and_markdown_content(self) -> None:
+        record = deepcopy(self.record)
+        paragraph = "这是一个包含 <标签> 与 & 符号的完整测试段落，用于确认局部加粗不会注入页面。"
+        record["sections"][1]["paragraphs"][2] = paragraph
+        record["sections"][1]["bold_spans"] = [
+            {"paragraph": 3, "text": "<标签> 与 & 符号"}
+        ]
+
+        html = render_html(record)
+        markdown = render_markdown(record)
+
+        self.assertIn(
+            '<strong style="color:#101114;font-weight:700;">&lt;标签&gt; 与 &amp; 符号</strong>',
+            html,
+        )
+        self.assertNotIn("<标签>", html)
+        self.assertIn("**\\<标签\\> 与 & 符号**", markdown)
+
+    def test_media_placements_interleave_images_with_paragraphs(self) -> None:
+        html = render_html(self.record)
+        markdown = render_markdown(self.record)
+        first_section = self.record["sections"][0]
+        before = first_section["paragraphs"][2]
+        after = first_section["paragraphs"][3]
+        image_path = self.record["media"][1]["path"]
+
+        self.assertLess(html.index(before), html.index(image_path))
+        self.assertLess(html.index(image_path), html.index(after))
+        self.assertLess(markdown.index(before), markdown.index(image_path))
+        self.assertLess(markdown.index(image_path), markdown.index(after))
+
+    def test_legacy_sections_without_media_placements_keep_images_at_the_end(self) -> None:
+        record = deepcopy(self.record)
+        first_section = record["sections"][0]
+        first_section.pop("media_placements")
+        last_paragraph = first_section["paragraphs"][-1]
+        image_path = record["media"][1]["path"]
+
+        self.assertTrue(validate_record(record, strict=True)["ok"])
+        html = render_html(record)
+        markdown = render_markdown(record)
+        self.assertLess(html.index(last_paragraph), html.index(image_path))
+        self.assertLess(markdown.index(last_paragraph), markdown.index(image_path))
 
     def test_discussion_question_is_optional_and_never_auto_rendered(self) -> None:
         cases = (
@@ -303,6 +661,8 @@ class RenderTests(unittest.TestCase):
                 }
             )
         record["public_source_ids"] = ["S6", "S1", "S4"]
+        record["show_public_sources"] = True
+        record["sources"][5]["public_label"] = "来源六原文"
 
         html = render_html(record)
         markdown = render_markdown(record)
@@ -313,8 +673,13 @@ class RenderTests(unittest.TestCase):
         self.assertLess(markdown.index("source-6"), markdown.index("hello-gpt-4o"))
         self.assertLess(markdown.index("hello-gpt-4o"), markdown.index("source-4"))
         self.assertNotIn("gpt-4o-system-card", markdown)
+        self.assertIn("来源六原文", html)
+        self.assertIn("来源六原文", markdown)
+        self.assertNotIn("示例出版方", html)
+        self.assertNotIn("示例出版方", markdown)
+        self.assertNotIn("· OpenAI", html)
 
-    def test_reader_facing_sources_fallback_caps_old_records_at_five(self) -> None:
+    def test_reader_facing_sources_remain_hidden_without_explicit_opt_in(self) -> None:
         record = deepcopy(self.record)
         record.pop("public_source_ids")
         for index in range(4, 7):
@@ -332,7 +697,8 @@ class RenderTests(unittest.TestCase):
 
         html = render_html(record)
 
-        self.assertIn('id="source-S5"', html)
+        self.assertNotIn("延伸阅读", html)
+        self.assertNotIn('id="source-S1"', html)
         self.assertNotIn('id="source-S6"', html)
 
     def test_renderer_cli_writes_both_artifacts(self) -> None:
@@ -405,6 +771,17 @@ class RenderTests(unittest.TestCase):
             self.assertEqual(rendered.returncode, 0, rendered.stderr)
             self.assertFalse(json.loads(rendered.stdout)["publication_ready"])
             self.assertEqual(blocked.returncode, 1)
+
+    @unittest.skipUnless(PIL_AVAILABLE, "Pillow is optional")
+    def test_cover_wrap_keeps_ascii_product_name_intact(self) -> None:
+        image = Image.new("RGB", (WIDTH, HEIGHT), (250, 250, 247))
+        draw = ImageDraw.Draw(image)
+        title = "超 70 亿美元，Stripe 被曝收购 OpenRouter"
+
+        lines = _wrap(draw, title, _font(48, bold=True), 610)
+
+        self.assertEqual("".join(lines), title)
+        self.assertTrue(any("OpenRouter" in line for line in lines))
 
     @unittest.skipUnless(PIL_AVAILABLE, "Pillow is optional")
     def test_cover_is_exact_size_and_deterministic(self) -> None:

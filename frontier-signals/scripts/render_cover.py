@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -75,11 +76,12 @@ def _wrap(draw, text: str, font, max_width: int) -> list[str]:
     lines: list[str] = []
     for hard_line in text.strip().splitlines():
         current = ""
-        for character in hard_line:
-            candidate = current + character
+        tokens = re.findall(r"[A-Za-z0-9][A-Za-z0-9._+&/$-]*|.", hard_line)
+        for token in tokens:
+            candidate = current + token
             if current and _text_width(draw, candidate, font) > max_width:
                 lines.append(current.rstrip())
-                current = character.lstrip()
+                current = token.lstrip()
             else:
                 current = candidate
         if current:
