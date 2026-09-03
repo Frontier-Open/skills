@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // CLI for the Xiaohongshu cover generator: config -> 1080x1440 PNG (via headless Chrome) or HTML.
 //
-//   node make-cover.mjs --template 1 --theme melon --main "一个人做内容\n先定一个主张" \
+//   node make-cover.mjs --template thinking --theme melon --main "一个人做内容\n先定一个主张" \
 //        --highlight "一个主张" --emoji 🧭 --out cover.png
 //   node make-cover.mjs --config cover.json --out cover.png
 //   node make-cover.mjs --batch covers.json --outdir ./out
@@ -27,7 +27,7 @@ import {
   normalizeConfig,
   randomSeed,
   registerTemplates,
-  resolveTemplateId,
+  resolveTemplateKey,
   resolveThemeKey,
 } from './cover.js';
 
@@ -268,7 +268,7 @@ function readBody(req) {
 
 function printHelp() {
   const templates = listTemplates()
-    .map((t) => `  ${String(t.id).padStart(2)} ${t.key.padEnd(10)} ${t.name.padEnd(6)} ${t.desc} · ${t.useCase}`)
+    .map((t) => `  ${t.key.padEnd(18)} ${t.name.padEnd(6)} ${t.desc} · ${t.useCase}`)
     .join('\n');
   const themes = Object.entries(THEMES)
     .map(([key, t]) => `  ${key.padEnd(7)} ${t.name}  ${t.desc} · ${t.style}  [${t.colors.join(' ')}]`)
@@ -282,7 +282,7 @@ Themes:
 ${themes}
 
 Flags:
-  --template <id|key>    --theme <braun|melon|sunset|ocean>
+  --template <key>       --theme <braun|melon|sunset|ocean>
   --main "line1\\nline2"  --sub <text>   --highlight <word>   --tag <word>
   --emoji <char>  --no-emoji  --emojiX <5-95>  --emojiY <5-95>  --emojiSize <40-220>
   --background <#hex>  --textColor <#hex>  --height <px>
@@ -306,14 +306,14 @@ async function main() {
   let config = {};
   if (args.config) config = JSON.parse(fs.readFileSync(path.resolve(String(args.config)), 'utf8'));
   if (args.random) {
-    config = { ...config, ...randomSeed(args.template ?? config.template ?? 1, args.theme ?? config.theme) };
+    config = { ...config, ...randomSeed(args.template ?? config.template ?? 'thinking', args.theme ?? config.theme) };
   }
   config = { ...config, ...configFromArgs(args) };
 
-  const templateId = resolveTemplateId(config.template);
+  const templateKey = resolveTemplateKey(config.template);
   const out = args.out
     ? String(args.out)
-    : path.join('covers', `${TEMPLATES[templateId].key}-${resolveThemeKey(config.theme)}.png`);
+    : path.join('covers', `${TEMPLATES[templateKey].key}-${resolveThemeKey(config.theme)}.png`);
   const { file, cfg } = await renderOne(config, out, { htmlOnly: Boolean(args.html) });
   console.log(`rendered ${file}  [${TEMPLATES[cfg.template].name} · ${THEMES[cfg.theme].name} · ${cfg.backgroundColor}]`);
 }

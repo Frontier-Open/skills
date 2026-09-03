@@ -32,17 +32,17 @@ Shared ink: text `#1f2937`, highlight `#fbbf24`, 副标题 `#6b7280`, card `#fff
 
 ## 版式几何
 
-Six built-ins remain. Their original IDs are kept at `1`, `2`, `3`, `6`, `7` and `9` so retained
-template references do not change when the other three built-ins are removed.
+Six built-ins remain. Each is addressed by its stable `key`, so adding or removing a template never
+changes how the other templates are selected.
 
-| id | key | 名称 | slot | structure | 用在哪 |
-| --- | --- | --- | --- | --- | --- |
-| 1 | `thinking` | 思考型 | 1 | plain | 知识分享、教程、方法论 |
-| 2 | `dialog` | 对话框型 | 2 | card | 问答、避坑、经验交流 |
-| 3 | `emotion` | 情绪型 | 3 | plain + wave | 情感表达、生活感悟、吐槽 |
-| 6 | `quote` | 引用型 | 2 | card + 引号 | 金句、书摘、播客片段 |
-| 7 | `note` | 便签型 | 1 | paper + 横线 | 清单、备忘、日常记录 |
-| 9 | `list` | 清单型 | 1 | plain + 编号 | 几个方法、几个工具、几个坑 |
+| key | 名称 | slot | structure | 用在哪 |
+| --- | --- | --- | --- | --- |
+| `thinking` | 思考型 | 1 | plain | 知识分享、教程、方法论 |
+| `dialog` | 对话框型 | 2 | card | 问答、避坑、经验交流 |
+| `emotion` | 情绪型 | 3 | plain + wave | 情感表达、生活感悟、吐槽 |
+| `quote` | 引用型 | 2 | card + 引号 | 金句、书摘、播客片段 |
+| `note` | 便签型 | 1 | paper + 横线 | 清单、备忘、日常记录 |
+| `list` | 清单型 | 1 | plain + 条目序号 | 几个方法、几个工具、几个坑 |
 
 The three retained originals, in detail:
 
@@ -63,7 +63,7 @@ base size (40-220), matching the drag behaviour of the original tool.
 
 ```json
 {
-  "template": 1,
+  "template": "thinking",
   "theme": "melon",
   "mainText": "line one\nline two",
   "subText": "",
@@ -80,9 +80,9 @@ base size (40-220), matching the drag behaviour of the original tool.
 }
 ```
 
-`template` accepts an id, a key (`thinking`, `quote`, ...), or the Chinese name; `theme` accepts the
+`template` accepts a key (`thinking`, `quote`, ...), or the Chinese name; `theme` accepts the
 Chinese name. `accentColor` may be set alongside `backgroundColor`. When no `mainText` is supplied at
-all, the whole template sample is used, which is how `--template 7` alone renders a complete demo;
+all, the whole template sample is used, which is how `--template note` alone renders a complete demo;
 once any copy is given, blank fields stay blank.
 
 ## 自定义模板

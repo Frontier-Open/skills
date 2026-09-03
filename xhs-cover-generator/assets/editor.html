@@ -166,9 +166,9 @@ const frame = document.getElementById('preview');
 const dragEmoji = document.getElementById('dragEmoji');
 const dragGlyph = document.getElementById('dragGlyph');
 const status = document.getElementById('status');
-const emojiBase = (id) => TEMPLATES[id]?.emoji?.base ?? 150;
+const emojiBase = (key) => TEMPLATES[key]?.emoji?.base ?? 150;
 
-let state = defaultConfig(1, 'melon');
+let state = defaultConfig('thinking', 'melon');
 let scale = 1;
 
 function fitStage() {
@@ -215,12 +215,12 @@ function buildOptions() {
   for (const t of listTemplates()) {
     const b = document.createElement('button');
     b.className = 'opt';
-    b.dataset.template = t.id;
+    b.dataset.template = t.key;
     b.title = `${t.name} · ${t.desc} · ${t.useCase}`;
     b.innerHTML = `<div class="opt-name">${t.sample?.emoji || '✨'} ${t.name}</div><div class="opt-desc">${t.desc}</div>`;
     b.onclick = () => {
       // Switching template also re-picks the palette slot, like the original tool.
-      setState({ ...defaultConfig(t.id, state.theme), mainText: state.mainText, highlightText: state.highlightText, subText: state.subText, tag: state.tag, emoji: state.emoji });
+      setState({ ...defaultConfig(t.key, state.theme), mainText: state.mainText, highlightText: state.highlightText, subText: state.subText, tag: state.tag, emoji: state.emoji });
       syncInputs();
       markPressed();
     };
@@ -269,7 +269,7 @@ function renderPalette() {
 }
 
 function markPressed() {
-  for (const b of document.querySelectorAll('[data-template]')) b.setAttribute('aria-pressed', String(Number(b.dataset.template) === state.template));
+  for (const b of document.querySelectorAll('[data-template]')) b.setAttribute('aria-pressed', String(b.dataset.template === state.template));
   for (const b of document.querySelectorAll('[data-theme]')) b.setAttribute('aria-pressed', String(b.dataset.theme === state.theme));
   for (const b of document.querySelectorAll('[data-emoji]')) b.setAttribute('aria-pressed', String(b.dataset.emoji === state.emoji));
   renderPalette();

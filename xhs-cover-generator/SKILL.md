@@ -15,7 +15,7 @@ N pages of pastel background, dashed sticker cards and page dots, from a single 
 ## Make a cover
 
 ```bash
-node scripts/make-cover.mjs --template 1 --theme melon \
+node scripts/make-cover.mjs --template thinking --theme melon \
   --main "一个人做内容\n先定一个主张\n再开始动手" \
   --highlight "一个主张" --emoji 🧭 --out covers/cover.png
 ```
@@ -25,7 +25,7 @@ array of them, and `--html` writes the HTML instead of a PNG. `--list` prints th
 tables. Rendering needs Chrome, Chromium, or Edge; the script also finds a Playwright-cached Chromium,
 and `XHS_COVER_CHROME` overrides the lookup.
 
-`--template <id>` on its own renders that template's built-in sample, which is the fastest way to show
+`--template <key>` on its own renders that template's built-in sample, which is the fastest way to show
 someone what a layout looks like.
 
 For hand-tuning, `node scripts/make-cover.mjs --editor` serves a local editor: live preview, emoji
@@ -36,14 +36,14 @@ under the directory the server was started from.
 
 Pick by the emotional job of the cover, then let the palette follow the topic.
 
-1. `thinking` 思考型 — left-aligned statement block, one highlighted phrase. Knowledge, tutorials, methodology.
-2. `dialog` 对话框型 — white speech card with an optional 副标题. Questions, 避坑, conversational hooks.
-3. `emotion` 情绪型 — centered lines over a wave, corner 角标. Venting, feelings, relatable moments.
-6. `quote` 引用型 — quiet card between quote marks, attribution underneath. 金句, 书摘, podcast pull-quotes.
-7. `note` 便签型 — taped paper with ruled lines under the copy. Checklists, memos, diary-ish posts.
-9. `list` 清单型 — numbered lines under a bold 副标题 lead. 三件事, tool roundups, mistake lists.
+- `thinking` 思考型 — left-aligned statement block, one highlighted phrase. Knowledge, tutorials, methodology.
+- `dialog` 对话框型 — white speech card with an optional 副标题. Questions, 避坑, conversational hooks.
+- `emotion` 情绪型 — centered lines over a wave, corner 角标. Venting, feelings, relatable moments.
+- `quote` 引用型 — quiet card between quote marks, attribution underneath. 金句, 书摘, podcast pull-quotes.
+- `note` 便签型 — taped paper with ruled lines under the copy. Checklists, memos, diary-ish posts.
+- `list` 清单型 — numbered lines under a bold 副标题 lead. 三件事, tool roundups, mistake lists.
 
-The retained IDs are intentionally unchanged, so existing references to `thinking`, `dialog`, `emotion`, `quote`, `note` and `list` remain stable. IDs 4, 5 and 8 are no longer built-in templates.
+Templates are addressed by their stable key. Use the key rather than a position in the list, because templates can be removed or added without changing other templates.
 
 Palettes: `melon` 青提甜瓜 (life, food, health), `braun` 博朗经典 (tech, design, business),
 `sunset` 日落黄昏 (emotion, art, travel), `ocean` 深海蓝调 (education, finance, professional).

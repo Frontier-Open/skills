@@ -13,19 +13,19 @@
 
 <table>
   <tr>
-    <td align="center"><img src="assets/previews/01-thinking.png" alt="思考型" width="180"><br><sub>1. 思考型</sub></td>
-    <td align="center"><img src="assets/previews/02-dialog.png" alt="对话框型" width="180"><br><sub>2. 对话框型</sub></td>
-    <td align="center"><img src="assets/previews/03-emotion.png" alt="情绪型" width="180"><br><sub>3. 情绪型</sub></td>
+    <td align="center"><img src="assets/previews/thinking.png" alt="思考型" width="180"><br><sub>思考型</sub></td>
+    <td align="center"><img src="assets/previews/dialog.png" alt="对话框型" width="180"><br><sub>对话框型</sub></td>
+    <td align="center"><img src="assets/previews/emotion.png" alt="情绪型" width="180"><br><sub>情绪型</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="assets/previews/06-quote.png" alt="引用型" width="180"><br><sub>6. 引用型</sub></td>
-    <td align="center"><img src="assets/previews/07-note.png" alt="便签型" width="180"><br><sub>7. 便签型</sub></td>
-    <td align="center"><img src="assets/previews/09-list.png" alt="清单型" width="180"><br><sub>9. 清单型</sub></td>
+    <td align="center"><img src="assets/previews/quote.png" alt="引用型" width="180"><br><sub>引用型</sub></td>
+    <td align="center"><img src="assets/previews/note.png" alt="便签型" width="180"><br><sub>便签型</sub></td>
+    <td align="center"><img src="assets/previews/list.png" alt="清单型" width="180"><br><sub>清单型</sub></td>
   </tr>
 </table>
 
 模板选择建议：思考型适合教程和方法论，对话框型适合问答和避坑，情绪型适合情感表达，引用型适合金句和书摘，便签型适合日常清单，清单型适合多条方法或工具合集。
-当前内置模板保留原有编号，因此可用编号为 `1`、`2`、`3`、`6`、`7`、`9`；4、5、8 已移除，使用模板 key 可以避免记编号。
+模板使用稳定的 key，不依赖列表位置。可用 key 是 `thinking`、`dialog`、`emotion`、`quote`、`note` 和 `list`。
 
 ## 多页图文预览：`deck-xhs-post`
 
@@ -60,7 +60,7 @@ cd xhs-cover-generator
 
 ```bash
 node scripts/make-cover.mjs \
-  --template 1 \
+  --template thinking \
   --theme braun \
   --main "5个AI工具\n让工作效率翻倍" \
   --highlight "AI工具" \
@@ -69,7 +69,7 @@ node scripts/make-cover.mjs \
   --out out/cover.png
 ```
 
-模板编号可以使用 `1`、`2`、`3`、`6`、`7`、`9`，也可以使用模板 key，例如 `--template thinking`。查看完整模板和配色表：
+模板参数使用稳定的 key，例如 `--template thinking`。查看完整模板和配色表：
 
 ```bash
 node scripts/make-cover.mjs --list
@@ -78,7 +78,7 @@ node scripts/make-cover.mjs --list
 不传文案时，会渲染对应模板的内置示例：
 
 ```bash
-node scripts/make-cover.mjs --template 1 --out out/thinking.png
+node scripts/make-cover.mjs --template thinking --out out/thinking.png
 ```
 
 ### 生成整套多页图文
@@ -142,7 +142,7 @@ node scripts/make-cover.mjs --editor --port 5178
 也可以通过 `XHS_COVER_CHROME` 指定浏览器可执行文件路径：
 
 ```bash
-XHS_COVER_CHROME=/path/to/chrome node scripts/make-cover.mjs --template 1
+XHS_COVER_CHROME=/path/to/chrome node scripts/make-cover.mjs --template thinking
 ```
 
 ## 项目结构
@@ -154,7 +154,7 @@ xhs-cover-generator/
 ├── agents/openai.yaml
 ├── assets/
 │   ├── previews/
-│   │   ├── 01-thinking.png 02-dialog.png 03-emotion.png 06-quote.png 07-note.png 09-list.png
+│   │   ├── thinking.png dialog.png emotion.png quote.png note.png list.png
 │   │   ├── deck-xhs-post-overview.png
 │   │   └── deck-xhs-post-pages/
 │   ├── custom-template.example.json

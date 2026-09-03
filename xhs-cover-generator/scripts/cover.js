@@ -32,6 +32,7 @@ export const THEMES = {
 };
 
 export const DEFAULT_THEME = 'melon';
+export const DEFAULT_TEMPLATE = 'thinking';
 
 export const EMOJI_CHOICES = ['🤔', '👍', '😣', '💡', '🎯', '✨', '🔥', '💪'];
 
@@ -72,7 +73,6 @@ const FONT_STACK =
 // tag: none | top-right | top-left | bottom-center
 const BUILTIN_SPECS = [
   {
-    id: 1,
     key: 'thinking',
     name: '思考型',
     desc: '简洁专业',
@@ -87,7 +87,6 @@ const BUILTIN_SPECS = [
     sample: { mainText: '一个人做内容\n先定一个主张\n再开始动手', highlightText: '一个主张', emoji: '🧭' },
   },
   {
-    id: 2,
     key: 'dialog',
     name: '对话框型',
     desc: '互动友好',
@@ -108,7 +107,6 @@ const BUILTIN_SPECS = [
     },
   },
   {
-    id: 3,
     key: 'emotion',
     name: '情绪型',
     desc: '情感共鸣',
@@ -123,7 +121,6 @@ const BUILTIN_SPECS = [
     sample: { mainText: '不是没有灵感\n是每天都在\n重新开始', tag: '创作者日常', emoji: '😮‍💨' },
   },
   {
-    id: 6,
     key: 'quote',
     name: '引用型',
     desc: '安静有质感',
@@ -145,7 +142,6 @@ const BUILTIN_SPECS = [
     },
   },
   {
-    id: 7,
     key: 'note',
     name: '便签型',
     desc: '手账感、亲切',
@@ -167,7 +163,6 @@ const BUILTIN_SPECS = [
     },
   },
   {
-    id: 9,
     key: 'list',
     name: '清单型',
     desc: '信息密度高',
@@ -211,7 +206,7 @@ function specDefaults(spec) {
 
 function register(spec) {
   const full = specDefaults(spec);
-  registry.set(full.id, full);
+  registry.set(full.key, full);
   return full;
 }
 
@@ -222,18 +217,18 @@ export function registerTemplates(input) {
   const list = Array.isArray(input) ? input : [input];
   const added = [];
   for (const raw of list) {
-    const base = raw.extends ? registry.get(resolveTemplateId(raw.extends)) : null;
+    const base = raw.extends ? registry.get(resolveTemplateKey(raw.extends)) : null;
+    const rawSpec = Object.fromEntries(Object.entries(raw).filter(([key]) => key !== 'id'));
     const merged = {
       ...(base || {}),
-      ...raw,
-      id: raw.id ?? (base && raw.key === base.key ? base.id : nextId()),
-      key: raw.key || (base ? `${base.key}-custom` : `custom-${registry.size + 1}`),
-      name: raw.name || raw.key || (base ? `${base.name}·自定义` : '自定义'),
-      text: { ...(base?.text || {}), ...(raw.text || {}) },
-      emoji: { ...(base?.emoji || {}), ...(raw.emoji || {}) },
-      sub: raw.sub === null ? null : { ...(base?.sub || {}), ...(raw.sub || {}) },
-      surface: raw.surface === null ? null : raw.surface || base?.surface || null,
-      sample: { ...(base?.sample || {}), ...(raw.sample || {}) },
+      ...rawSpec,
+      key: raw.key || (base ? uniqueKey(base.key + '-custom') : uniqueKey('custom-template')),
+      name: raw.name || raw.key || (base ? base.name + '·自定义' : '自定义'),
+      text: { ...(base?.text || {}), ...(rawSpec.text || {}) },
+      emoji: { ...(base?.emoji || {}), ...(rawSpec.emoji || {}) },
+      sub: rawSpec.sub === null ? null : { ...(base?.sub || {}), ...(rawSpec.sub || {}) },
+      surface: rawSpec.surface === null ? null : rawSpec.surface || base?.surface || null,
+      sample: { ...(base?.sample || {}), ...(rawSpec.sample || {}) },
     };
     if (merged.sub && !Object.keys(merged.sub).length) merged.sub = null;
     added.push(register(merged));
@@ -241,23 +236,26 @@ export function registerTemplates(input) {
   return added;
 }
 
-function nextId() {
-  return Math.max(...registry.keys()) + 1;
+function uniqueKey(prefix) {
+  let key = prefix;
+  let suffix = 2;
+  while (registry.has(key)) key = prefix + '-' + suffix++;
+  return key;
 }
 
 function specs() {
-  return [...registry.values()].sort((a, b) => a.id - b.id);
+  return [...registry.values()];
 }
 
-/** id -> spec, kept as an object for callers that iterate templates. */
+/** key -> spec, kept as a live object for the editor and CLI. */
 export const TEMPLATES = new Proxy(
   {},
   {
-    get: (_, prop) => (prop === Symbol.iterator ? undefined : registry.get(Number(prop)) ?? registry.get(prop)),
-    has: (_, prop) => registry.has(Number(prop)),
-    ownKeys: () => specs().map((s) => String(s.id)),
+    get: (_, prop) => (prop === Symbol.iterator ? undefined : registry.get(String(prop))),
+    has: (_, prop) => typeof prop === 'string' && registry.has(prop),
+    ownKeys: () => specs().map((s) => s.key),
     getOwnPropertyDescriptor: (_, prop) => ({
-      value: registry.get(Number(prop)),
+      value: registry.get(prop),
       enumerable: true,
       configurable: true,
     }),
@@ -268,14 +266,12 @@ export function listTemplates() {
   return specs();
 }
 
-export function resolveTemplateId(value) {
-  if (value == null || value === '') return 1;
-  if (typeof value === 'number') return registry.has(value) ? value : 1;
+export function resolveTemplateKey(value) {
+  if (value == null || value === '') return DEFAULT_TEMPLATE;
   const raw = String(value).trim();
   const byKey = specs().find((s) => s.key === raw || s.name === raw);
-  if (byKey) return byKey.id;
-  const num = Number(raw);
-  return registry.has(num) ? num : 1;
+  if (byKey) return byKey.key;
+  throw new Error('Unknown template "' + raw + '". Use a template key from --list.');
 }
 
 export function resolveThemeKey(value) {
@@ -286,18 +282,18 @@ export function resolveThemeKey(value) {
 }
 
 /** Each template reads a fixed slot of the palette, so themes deepen with the layout. */
-export function themeColor(themeKey, templateId) {
+export function themeColor(themeKey, templateKey) {
   const theme = THEMES[resolveThemeKey(themeKey)];
-  const spec = registry.get(resolveTemplateId(templateId));
+  const spec = registry.get(resolveTemplateKey(templateKey));
   const index = Math.min(Math.max((spec?.slot ?? 1) - 1, 0), theme.colors.length - 1);
   return theme.colors[index];
 }
 
-export function defaultConfig(templateId = 1, themeKey = DEFAULT_THEME) {
-  const spec = registry.get(resolveTemplateId(templateId));
+export function defaultConfig(templateKey = DEFAULT_TEMPLATE, themeKey = DEFAULT_THEME) {
+  const spec = registry.get(resolveTemplateKey(templateKey));
   const theme = resolveThemeKey(themeKey);
   return {
-    template: spec.id,
+    template: spec.key,
     theme,
     mainText: '',
     subText: '',
@@ -309,12 +305,12 @@ export function defaultConfig(templateId = 1, themeKey = DEFAULT_THEME) {
     emojiY: spec.emoji.y,
     emojiSize: spec.emoji.size,
     ...spec.sample,
-    backgroundColor: themeColor(theme, spec.id),
+    backgroundColor: themeColor(theme, spec.key),
   };
 }
 
 export function normalizeConfig(input = {}) {
-  const template = resolveTemplateId(input.template ?? input.templateId);
+  const template = resolveTemplateKey(input.template ?? input.templateKey);
   const spec = registry.get(template);
   const theme = resolveThemeKey(input.theme);
   const height = Number(input.height) || CANVAS.height;
@@ -577,7 +573,7 @@ export function buildCoverHTML(input = {}) {
 ${spec.css ? `  ${spec.css}\n` : ''}</style>
 </head>
 <body>
-  <div class="cover t${spec.id} k-${spec.key}">
+  <div class="cover k-${spec.key}">
       ${decorationHTML(spec, 'back')}
       ${surfaceHTML(spec, cfg)}
       ${decorationHTML(spec, 'front')}
@@ -630,16 +626,16 @@ ${spec.css ? `  ${spec.css}\n` : ''}</style>
 `;
 }
 
-export function randomSeed(templateId = 1, themeKey = DEFAULT_THEME) {
+export function randomSeed(templateKey = DEFAULT_TEMPLATE, themeKey = DEFAULT_THEME) {
   const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
-  const spec = registry.get(resolveTemplateId(templateId));
+  const spec = registry.get(resolveTemplateKey(templateKey));
   return {
-    template: spec.id,
+    template: spec.key,
     theme: resolveThemeKey(themeKey),
     mainText: pick(SEEDS.mainText),
     highlightText: pick(SEEDS.highlightText),
     tag: spec.tag === 'none' ? '' : pick(SEEDS.tag),
     emoji: pick(SEEDS.emoji),
-    backgroundColor: themeColor(themeKey, spec.id),
+    backgroundColor: themeColor(themeKey, spec.key),
   };
 }
