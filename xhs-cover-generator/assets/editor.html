@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>小红书封面生成器 · 本地版</title>
+<style>
+  :root {
+    --ink: #1f2937;
+    --muted: #6b7280;
+    --line: #e5e7eb;
+    --accent: #ff6b35;
+    --surface: #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "PingFang SC", "Hiragino Sans GB", system-ui, sans-serif;
+    color: var(--ink);
+    background: #f7f7f5;
+    height: 100vh;
+    display: grid;
+    grid-template-columns: 380px 1fr;
+  }
+  aside { overflow-y: auto; padding: 20px; background: var(--surface); border-right: 1px solid var(--line); }
+  main { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 20px; }
+  h1 { font-size: 17px; font-weight: 700; }
+  .sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  section { margin-top: 22px; }
+  section > label, .group-label {
+    display: block; font-size: 12px; font-weight: 600; color: var(--muted);
+    letter-spacing: .04em; margin-bottom: 8px;
+  }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .grid-3 button.opt { padding: 8px 6px; text-align: center; }
+  .grid-3 .opt-name { font-size: 12px; }
+  .grid-3 .opt-desc { font-size: 10px; line-height: 1.35; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  button.opt {
+    text-align: left; padding: 10px; border: 1px solid var(--line); border-radius: 8px;
+    background: #fff; cursor: pointer; font: inherit; transition: border-color .15s, background .15s;
+  }
+  button.opt:hover { border-color: #c9ccd1; }
+  button.opt[aria-pressed="true"] { border-color: var(--accent); background: #fff6f1; }
+  .opt-name { font-size: 13px; font-weight: 600; }
+  .opt-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .swatches { display: flex; gap: 4px; margin-top: 6px; }
+  .swatches i { width: 14px; height: 14px; border-radius: 50%; border: 1px solid #00000014; }
+  button.color { height: 34px; border-radius: 8px; border: 2px solid var(--line); cursor: pointer; }
+  button.color[aria-pressed="true"] { border-color: var(--accent); }
+  button.emoji { font-size: 20px; padding: 8px 0; border: 1px solid var(--line); border-radius: 8px; background: #fff; cursor: pointer; }
+  button.emoji[aria-pressed="true"] { border-color: var(--accent); background: #fff6f1; }
+  input[type="text"], textarea {
+    width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px;
+    font: inherit; font-size: 13px; resize: vertical; color: var(--ink); background: #fff;
+  }
+  input:focus, textarea:focus { outline: 2px solid #ffd7c4; border-color: var(--accent); }
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .row { display: flex; gap: 8px; align-items: center; }
+  .actions { display: flex; gap: 8px; }
+  button.primary {
+    padding: 10px 18px; border: 0; border-radius: 8px; background: var(--accent); color: #fff;
+    font: inherit; font-weight: 600; cursor: pointer;
+  }
+  button.ghost {
+    padding: 10px 14px; border: 1px solid var(--line); border-radius: 8px; background: #fff;
+    font: inherit; cursor: pointer;
+  }
+  button.primary:disabled { opacity: .6; cursor: progress; }
+  .stage { position: relative; box-shadow: 0 6px 24px #0000001a; border-radius: 4px; overflow: hidden; }
+  .stage iframe { display: block; border: 0; }
+  .drag-emoji {
+    position: absolute; transform: translate(-50%, -50%); line-height: 1; cursor: grab;
+    user-select: none; font-family: "Apple Color Emoji", "Noto Color Emoji", sans-serif;
+  }
+  .drag-emoji:active { cursor: grabbing; }
+  .drag-emoji .handle {
+    position: absolute; right: -8px; bottom: -8px; width: 16px; height: 16px; border-radius: 50%;
+    background: var(--accent); border: 2px solid #fff; cursor: nwse-resize; opacity: 0;
+    transition: opacity .15s;
+  }
+  .drag-emoji:hover .handle { opacity: 1; }
+  .meta { font-size: 12px; color: var(--muted); text-align: center; }
+  .meta code { background: #eceff3; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+</style>
+</head>
+<body>
+<aside>
+  <h1>小红书封面生成器</h1>
+  <p class="sub" id="subtitle">1080×1440</p>
+
+  <section>
+    <span class="group-label">选择版式</span>
+    <div class="grid-3" id="templates"></div>
+  </section>
+
+  <section>
+    <span class="group-label">配色主题</span>
+    <div class="grid-2" id="themes"></div>
+    <span class="group-label" style="margin-top:12px">背景微调</span>
+    <div class="grid-4" id="palette"></div>
+  </section>
+
+  <section>
+    <span class="group-label">文案</span>
+    <div class="field">
+      <label for="mainText">主文字（每行一句，换行即断行）</label>
+      <textarea id="mainText" rows="4"></textarea>
+    </div>
+    <div class="field">
+      <label for="highlightText">高亮词</label>
+      <input type="text" id="highlightText" placeholder="要高亮的词" />
+    </div>
+    <div class="field" data-cap="sub">
+      <label for="subText">副标题</label>
+      <input type="text" id="subText" placeholder="补一句支撑" />
+    </div>
+    <div class="field" data-cap="tag">
+      <label for="tag">角标</label>
+      <input type="text" id="tag" placeholder="如：亲测有效" />
+    </div>
+  </section>
+
+  <section>
+    <span class="group-label">表情（可在预览区拖拽 / 右下角缩放）</span>
+    <div class="grid-4" id="emojis"></div>
+    <label class="row" style="margin-top:10px;font-size:12px;color:var(--muted)">
+      <input type="checkbox" id="showEmoji" checked /> 显示表情
+    </label>
+  </section>
+</aside>
+
+<main>
+  <div class="stage" id="stage">
+    <iframe id="preview" title="封面预览"></iframe>
+    <div class="drag-emoji" id="dragEmoji" hidden><span id="dragGlyph"></span><i class="handle" id="dragHandle"></i></div>
+  </div>
+  <div class="actions">
+    <button class="ghost" id="shuffle">🎲 一键生成</button>
+    <button class="primary" id="save">保存 PNG</button>
+    <button class="ghost" id="copy">复制 JSON</button>
+  </div>
+  <p class="meta" id="status">保存后写入服务端启动目录的 <code>covers/</code></p>
+</main>
+
+<script type="module">
+import {
+  CANVAS, THEMES, TEMPLATES, EMOJI_CHOICES,
+  buildCoverHTML, defaultConfig, listTemplates, normalizeConfig, randomSeed,
+  registerTemplates, themeColor,
+} from '../scripts/cover.js';
+
+// Templates handed to the server with --template-file have to be registered in the browser copy
+// of the module too, otherwise the editor would only ever see the built-ins.
+try {
+  const res = await fetch('/custom-templates.json');
+  if (res.ok) {
+    const extra = await res.json();
+    if (Array.isArray(extra) && extra.length) registerTemplates(extra);
+  }
+} catch {}
+
+const stage = document.getElementById('stage');
+const frame = document.getElementById('preview');
+const dragEmoji = document.getElementById('dragEmoji');
+const dragGlyph = document.getElementById('dragGlyph');
+const status = document.getElementById('status');
+const emojiBase = (id) => TEMPLATES[id]?.emoji?.base ?? 150;
+
+let state = defaultConfig(1, 'melon');
+let scale = 1;
+
+function fitStage() {
+  const available = Math.min(window.innerHeight - 180, (window.innerWidth - 380) - 80);
+  scale = Math.max(0.2, available / CANVAS.height);
+  stage.style.width = `${CANVAS.width * scale}px`;
+  stage.style.height = `${CANVAS.height * scale}px`;
+  frame.style.width = `${CANVAS.width}px`;
+  frame.style.height = `${CANVAS.height}px`;
+  frame.style.transform = `scale(${scale})`;
+  frame.style.transformOrigin = 'top left';
+  placeEmoji();
+}
+
+function placeEmoji() {
+  const cfg = normalizeConfig(state);
+  dragEmoji.hidden = !cfg.showEmoji || !cfg.emoji;
+  dragGlyph.textContent = cfg.emoji;
+  dragEmoji.style.left = `${cfg.emojiX}%`;
+  dragEmoji.style.top = `${cfg.emojiY}%`;
+  dragEmoji.style.fontSize = `${(emojiBase(cfg.template) * cfg.emojiSize) / 100 * scale}px`;
+}
+
+function renderPreview() {
+  // The iframe draws everything except the emoji; the emoji lives in the overlay so it can be dragged.
+  frame.srcdoc = buildCoverHTML({ ...state, showEmoji: false });
+  placeEmoji();
+  const spec = TEMPLATES[state.template];
+  for (const field of document.querySelectorAll('[data-cap]')) {
+    const cap = field.dataset.cap;
+    field.hidden = cap === 'sub' ? !spec?.sub : !spec || spec.tag === 'none';
+  }
+  renderPalette();
+}
+
+function setState(patch, { rerender = true } = {}) {
+  state = { ...state, ...patch };
+  if (rerender) renderPreview();
+}
+
+function buildOptions() {
+  const templates = document.getElementById('templates');
+  templates.innerHTML = '';
+  for (const t of listTemplates()) {
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.dataset.template = t.id;
+    b.title = `${t.name} · ${t.desc} · ${t.useCase}`;
+    b.innerHTML = `<div class="opt-name">${t.sample?.emoji || '✨'} ${t.name}</div><div class="opt-desc">${t.desc}</div>`;
+    b.onclick = () => {
+      // Switching template also re-picks the palette slot, like the original tool.
+      setState({ ...defaultConfig(t.id, state.theme), mainText: state.mainText, highlightText: state.highlightText, subText: state.subText, tag: state.tag, emoji: state.emoji });
+      syncInputs();
+      markPressed();
+    };
+    templates.appendChild(b);
+  }
+
+  const themes = document.getElementById('themes');
+  themes.innerHTML = '';
+  for (const [key, theme] of Object.entries(THEMES)) {
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.dataset.theme = key;
+    b.innerHTML = `<div class="opt-name">${theme.name}</div><div class="opt-desc">${theme.desc}</div>
+      <div class="swatches">${theme.colors.map((c) => `<i style="background:${c}"></i>`).join('')}</div>`;
+    b.onclick = () => {
+      setState({ theme: key, backgroundColor: themeColor(key, state.template) });
+      markPressed();
+    };
+    themes.appendChild(b);
+  }
+
+  const emojis = document.getElementById('emojis');
+  emojis.innerHTML = '';
+  for (const e of EMOJI_CHOICES) {
+    const b = document.createElement('button');
+    b.className = 'emoji';
+    b.dataset.emoji = e;
+    b.textContent = e;
+    b.onclick = () => { setState({ emoji: e }); markPressed(); };
+    emojis.appendChild(b);
+  }
+}
+
+function renderPalette() {
+  const palette = document.getElementById('palette');
+  palette.innerHTML = '';
+  for (const color of THEMES[state.theme].colors) {
+    const b = document.createElement('button');
+    b.className = 'color';
+    b.style.background = color;
+    b.title = color;
+    b.setAttribute('aria-pressed', String(color === state.backgroundColor));
+    b.onclick = () => { setState({ backgroundColor: color }); markPressed(); };
+    palette.appendChild(b);
+  }
+}
+
+function markPressed() {
+  for (const b of document.querySelectorAll('[data-template]')) b.setAttribute('aria-pressed', String(Number(b.dataset.template) === state.template));
+  for (const b of document.querySelectorAll('[data-theme]')) b.setAttribute('aria-pressed', String(b.dataset.theme === state.theme));
+  for (const b of document.querySelectorAll('[data-emoji]')) b.setAttribute('aria-pressed', String(b.dataset.emoji === state.emoji));
+  renderPalette();
+}
+
+const inputs = ['mainText', 'highlightText', 'subText', 'tag'];
+function syncInputs() {
+  for (const id of inputs) document.getElementById(id).value = state[id] ?? '';
+  document.getElementById('showEmoji').checked = state.showEmoji !== false;
+}
+for (const id of inputs) {
+  document.getElementById(id).addEventListener('input', (e) => setState({ [id]: e.target.value }));
+}
+document.getElementById('showEmoji').addEventListener('change', (e) => setState({ showEmoji: e.target.checked }));
+
+// Drag to move, corner handle to resize.
+let drag = null;
+dragEmoji.addEventListener('pointerdown', (e) => {
+  if (e.target.id === 'dragHandle') return;
+  e.preventDefault();
+  drag = { mode: 'move', startX: e.clientX, startY: e.clientY, x: state.emojiX, y: state.emojiY };
+  dragEmoji.setPointerCapture(e.pointerId);
+});
+document.getElementById('dragHandle').addEventListener('pointerdown', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  drag = { mode: 'resize', startX: e.clientX, startY: e.clientY, size: state.emojiSize };
+  dragEmoji.setPointerCapture(e.pointerId);
+});
+dragEmoji.addEventListener('pointermove', (e) => {
+  if (!drag) return;
+  const box = stage.getBoundingClientRect();
+  if (drag.mode === 'move') {
+    const x = drag.x + ((e.clientX - drag.startX) / box.width) * 100;
+    const y = drag.y + ((e.clientY - drag.startY) / box.height) * 100;
+    state.emojiX = Math.max(5, Math.min(95, x));
+    state.emojiY = Math.max(5, Math.min(95, y));
+  } else {
+    const delta = (e.clientX - drag.startX) + (e.clientY - drag.startY);
+    state.emojiSize = Math.max(40, Math.min(220, drag.size + delta / 2));
+  }
+  placeEmoji();
+});
+dragEmoji.addEventListener('pointerup', () => { drag = null; });
+
+document.getElementById('shuffle').onclick = () => {
+  setState(randomSeed(state.template, state.theme));
+  syncInputs();
+  markPressed();
+};
+
+document.getElementById('copy').onclick = async () => {
+  await navigator.clipboard.writeText(JSON.stringify(normalizeConfig(state), null, 2));
+  status.textContent = '配置 JSON 已复制，可直接喂给 make-cover.mjs --config';
+};
+
+document.getElementById('save').onclick = async (e) => {
+  const button = e.currentTarget;
+  button.disabled = true;
+  status.textContent = '正在用无头 Chrome 渲染 1080×1440…';
+  try {
+    const res = await fetch('/render', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(normalizeConfig(state)),
+    });
+    const data = await res.json();
+    status.textContent = res.ok ? `已保存 ${data.file}` : `保存失败：${data.error}`;
+  } catch (error) {
+    status.textContent = `保存失败：${error.message}`;
+  } finally {
+    button.disabled = false;
+  }
+};
+
+window.addEventListener('resize', fitStage);
+document.getElementById('subtitle').textContent =
+  `1080×1440 · ${listTemplates().length} 套版式 · ${Object.keys(THEMES).length} 组配色`;
+buildOptions();
+syncInputs();
+markPressed();
+renderPreview();
+fitStage();
+</script>
+</body>
+</html>

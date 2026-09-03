@@ -1,0 +1,33 @@
+[
+  {
+    "key": "poster",
+    "name": "海报型",
+    "desc": "上白下色",
+    "useCase": "活动预告、日程、报名",
+    "slot": 3,
+    "structure": "band",
+    "highlight": "fill",
+    "tag": "top-right",
+    "surface": { "x": 0, "y": 980, "w": 1080, "h": 460 },
+    "text": { "x": 100, "y": 260, "w": 880, "h": 620, "size": 96, "align": "left", "lineHeight": 1.3, "min": 44 },
+    "sub": { "x": 100, "y": 1130, "w": 880, "size": 54, "align": "left", "onSurface": true, "strong": true },
+    "emoji": { "x": 84, "y": 66, "size": 100, "base": 160 },
+    "sample": {
+      "mainText": "周六晚八点\n聊聊一个人\n怎么做内容",
+      "subText": "直播间见 · 免费",
+      "highlightText": "周六晚八点",
+      "tag": "第 3 期",
+      "emoji": "🎯"
+    }
+  },
+  {
+    "extends": "thinking",
+    "key": "thinking-quiet",
+    "name": "思考·安静版",
+    "desc": "低饱和陈述",
+    "useCase": "克制的观点表达",
+    "slot": 1,
+    "highlight": "underline",
+    "sample": { "mainText": "先写下来\n再慢慢变好", "subText": "写给总想一次做对的人", "tag": "", "emoji": "🌱" }
+  }
+]

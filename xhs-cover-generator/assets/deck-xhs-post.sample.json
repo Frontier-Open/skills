@@ -1,0 +1,120 @@
+{
+  "title": "一个人做播客，从想法到上线",
+  "theme": "peach",
+  "width": 1080,
+  "height": 1440,
+  "author": { "name": "@独立创作者手册", "initial": "创" },
+  "pages": [
+    {
+      "name": "cover",
+      "justify": "center",
+      "stickers": [
+        { "text": "🎙️ 耳朵开工", "tone": "pink", "top": 120, "left": 48, "rotate": -6 },
+        { "text": "新手友好", "tone": "yellow", "top": 140, "right": 60, "rotate": 5 }
+      ],
+      "blocks": [
+        { "type": "space", "size": 150 },
+        { "type": "eyebrow", "text": "独立创作者工作流", "tone": "ink" },
+        { "type": "title", "level": 1, "text": "一个人做==播客==\n从想法到==上线==\n只要这 7 步", "gap": 16 },
+        { "type": "text", "text": "不用等设备齐全\n先把第一期做出来", "tone": "dim", "gap": 28 }
+      ],
+      "footer": { "right": "← 左滑 查看" }
+    },
+    {
+      "name": "hook",
+      "align": "center",
+      "gap": 28,
+      "stickers": [{ "text": "先别买设备 ↓", "tone": "blue", "bottom": 150, "left": "center", "rotate": -3 }],
+      "blocks": [
+        { "type": "emoji", "text": "🎙️" },
+        { "type": "title", "text": "别等设备齐了\n再开始录音", "gap": 32 },
+        { "type": "text", "text": "我把第一期拖了三个月。\n后来才发现，真正卡住我的\n不是麦克风，是没有小到能执行的流程。", "size": 26, "tone": "dim" }
+      ]
+    },
+    {
+      "name": "pain",
+      "blocks": [
+        { "type": "eyebrow", "text": "❌ 你是不是也这样" },
+        { "type": "title", "text": "准备很多，\n发布很少", "gap": 12 },
+        {
+          "type": "cards",
+          "gap": 34,
+          "items": [
+            { "title": "🎧 设备越买越多", "note": "录音还没开始，购物车先满了" },
+            { "title": "🗒️ 选题越存越多", "note": "真正开口时，反而不知道讲什么" },
+            { "title": "⏳ 一次想做完美", "note": "剪辑拖到下个周末，周末又推迟", "tone": "highlight" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "insight",
+      "stickers": [{ "text": "关键不是更专业", "tone": "green", "top": 105, "right": 42, "rotate": 4 }],
+      "blocks": [
+        { "type": "eyebrow", "text": "💡 换一个目标" },
+        { "type": "title", "text": "先做一个\n能上线的版本", "gap": 12 },
+        { "type": "text", "text": "第一期的目标不是证明你很厉害，\n而是让一个真实的人\n听完愿意留下来。", "gap": 34 },
+        { "type": "text", "text": "**先完成，再优化。**", "tone": "accent3", "gap": 22 }
+      ]
+    },
+    {
+      "name": "step-1",
+      "blocks": [
+        { "type": "badge", "text": "1" },
+        { "type": "title", "text": "先定一个\n听众", "gap": 22 },
+        { "type": "box", "gap": 34, "label": "👉 一句话定位", "text": "我想和 [[正在经历 X 的人]]\n聊清楚 Y\n而不是对所有人讲话" },
+        { "type": "box", "tone": "soft", "gap": 22, "label": "举例", "text": "刚开始做内容的上班族\n想听懂一件事，也愿意马上试试" }
+      ]
+    },
+    {
+      "name": "step-2",
+      "stickers": [{ "text": "提纲不是逐字稿", "tone": "yellow", "bottom": 180, "right": 58, "rotate": 7 }],
+      "blocks": [
+        { "type": "badge", "text": "2", "tone": "accent2" },
+        { "type": "title", "text": "写一页\n提纲", "gap": 22 },
+        { "type": "box", "gap": 34, "label": "三段式", "text": "为什么聊 → 我怎么做 → 听众带走什么" },
+        { "type": "box", "tone": "soft", "gap": 22, "label": "小提醒", "text": "每段只写 3 个关键词\n给自然说话留一点空间" }
+      ]
+    },
+    {
+      "name": "step-3",
+      "stickers": [{ "text": "手机就能开始", "tone": "pink", "bottom": 140, "left": "center", "rotate": -3 }],
+      "blocks": [
+        { "type": "badge", "text": "3", "tone": "accent3" },
+        { "type": "title", "text": "先录 10 分钟\n第一版", "gap": 22 },
+        { "type": "box", "gap": 34, "text": "**不求一遍过。**先录完，再标记需要重录的句子。" },
+        { "type": "box", "tone": "soft", "gap": 22, "text": "**发布前只改三件事：**\n开头、停顿、音量。" }
+      ]
+    },
+    {
+      "name": "result",
+      "blocks": [
+        { "type": "eyebrow", "text": "✅ 换成轻量流程后", "tone": "good" },
+        { "type": "title", "text": "从想法到上线\n只用一个晚上", "gap": 12 },
+        {
+          "type": "cards",
+          "gap": 34,
+          "items": [
+            { "title": "🎙️ 周一晚上定题" },
+            { "title": "📝 周二写提纲" },
+            { "title": "⏱️ 周三录 10 分钟" },
+            { "title": "✨ 周末发布第一期", "tone": "highlight" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "cta",
+      "align": "center",
+      "gap": 26,
+      "blocks": [
+        { "type": "emoji", "text": "📮" },
+        { "type": "title", "text": "下一期不等灵感", "gap": 34 },
+        { "type": "title", "level": 1, "text": "先把第一期\n录出来", "gap": 14 },
+        { "type": "text", "text": "收藏这套流程\n今晚就定一个题", "tone": "dim", "gap": 30 },
+        { "type": "tags", "align": "center", "gap": 34, "items": ["#播客新手", "#内容创作", "#独立创作者", "#效率方法"] }
+      ],
+      "footer": { "right": "从第一期开始" }
+    }
+  ]
+}

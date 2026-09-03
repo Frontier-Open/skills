@@ -1,0 +1,4 @@
+interface:
+  display_name: "小红书封面生成器"
+  short_description: "Render 1080x1440 Xiaohongshu covers from templates"
+  default_prompt: "帮我做一张小红书封面"

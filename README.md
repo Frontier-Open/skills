@@ -2,13 +2,14 @@
 
 Reusable, production-oriented Codex Skills maintained by Frontier World in the [FrontierOpen](https://github.com/FrontierOpen) GitHub organization.
 
-This repository currently contains `frontier-signals`, the editorial workflow for Frontier World’s AI news column. It separates internal research from public copy, keeps one canonical article record, validates editorial and release gates, and produces review-ready WeChat deliverables.
+This repository contains reusable Codex Skills maintained by Frontier World. It currently includes `frontier-signals`, an editorial workflow for Frontier World’s AI news column, and `xhs-cover-generator`, a local renderer for Xiaohongshu covers and multi-page 图文 decks.
 
-## Available skill
+## Available skills
 
 | Skill | Description | Status |
 | --- | --- | --- |
 | [`frontier-signals`](./frontier-signals/) | Researches, writes, illustrates, validates, and prepares sourced Chinese WeChat articles about AI models, agents, companies, founders, research, and policy. | Active |
+| [`xhs-cover-generator`](./xhs-cover-generator/) | Renders text-driven 1080×1440 Xiaohongshu covers and multi-page 图文 decks with built-in layouts, palettes, and JSON customization. | Active |
 
 ## Frontier Signals
 
@@ -45,13 +46,20 @@ release.json
 ```text
 skills/
 ├── README.md
-└── frontier-signals/
-    ├── SKILL.md       # Editorial workflow, rules, and release gates
+├── frontier-signals/
+│   ├── SKILL.md       # Editorial workflow, rules, and release gates
+│   ├── agents/        # Agent-facing metadata
+│   ├── assets/        # Brand assets, templates, and structural examples
+│   ├── references/    # Research, writing, visual, and WeChat release guidance
+│   ├── scripts/       # Validators and deterministic renderers
+│   └── tests/         # Validation, rendering, and cover regression tests
+└── xhs-cover-generator/
+    ├── SKILL.md       # Xiaohongshu cover and 图文 deck instructions
+    ├── README.md      # Template gallery and CLI usage
     ├── agents/        # Agent-facing metadata
-    ├── assets/        # Brand assets, templates, and structural examples
-    ├── references/    # Research, writing, visual, and WeChat release guidance
-    ├── scripts/       # Validators and deterministic renderers
-    └── tests/         # Validation, rendering, and cover regression tests
+    ├── assets/        # Templates, deck examples, and preview images
+    ├── references/    # Copywriting, design, and deck schema guidance
+    └── scripts/       # Deterministic HTML/CSS renderers
 ```
 
 ## Installation
@@ -63,13 +71,14 @@ git clone https://github.com/FrontierOpen/skills.git
 cd skills
 ```
 
-Copy or link the skill directory into the skills directory used by your Codex environment:
+Copy or link the skill directory you want into the skills directory used by your Codex environment:
 
 ```bash
 ln -s /path/to/skills/frontier-signals /path/to/codex-home/skills/frontier-signals
+ln -s /path/to/skills/xhs-cover-generator /path/to/codex-home/skills/xhs-cover-generator
 ```
 
-Read [`frontier-signals/SKILL.md`](./frontier-signals/SKILL.md) before use. Files under `assets/` are templates and structural fixtures, not current production data.
+Read the selected skill's `SKILL.md` before use. Files under `assets/` are templates, previews, and structural fixtures, not current production data.
 
 ## Usage
 
@@ -93,6 +102,8 @@ python3 scripts/validate_signal.py \
 ```
 
 Python 3 is required. Cover rendering and cover tests require Pillow.
+
+For Xiaohongshu covers and 图文 decks, see [`xhs-cover-generator/README.md`](./xhs-cover-generator/README.md) for the CLI, template gallery, JSON schema, and local editor.
 
 ## Validation
 
