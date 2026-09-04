@@ -105,6 +105,8 @@ node scripts/make-deck.mjs --deck my-deck.json --html out/deck-preview.html
 node scripts/make-deck.mjs --deck my-deck.json --page 1 --out out/cover.png
 ```
 
+HTML 预览会把每页固定在 `3:4` 画布中并响应式缩放。打开后可以点击“导出本页 PNG”或“导出全部 PNG”；导出尺寸使用 deck 的 `width` 和 `height`，默认是 `1080×1440`。
+
 deck 支持 `title`、`eyebrow`、`text`、`emoji`、`badge`、`cards`、`box`、`tags` 和 `space` 块，也支持贴纸、作者栏和页码。文字支持 `==高亮==`、`**加粗**`、`[[强调色]]` 和 `\n` 换行。
 
 完整示例：[assets/deck-xhs-post.sample.json](assets/deck-xhs-post.sample.json)。字段说明：[references/deck-schema.md](references/deck-schema.md)。

@@ -71,4 +71,5 @@ node scripts/make-deck.mjs --themes
 ```
 
 Rendering costs about 2.5s per page. `--html` costs nothing and is the fast way to check copy fit
-before committing to a full render.
+before committing to a full render. The HTML preview keeps every page at a responsive `3:4` ratio
+and includes per-page and all-pages PNG export buttons; browser export uses the deck's output size.

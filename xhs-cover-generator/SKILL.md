@@ -92,7 +92,8 @@ eighteen is the ceiling before people stop swiping.
 [assets/deck-xhs-post.sample.json](assets/deck-xhs-post.sample.json) is a complete worked example and
 doubles as the schema reference; the field-by-field tables are in
 [references/deck-schema.md](references/deck-schema.md). Use `--html preview.html` to check copy fit
-before spending ~2.5s per page on a full render.
+in a responsive 3:4 gallery; the generated page includes `导出本页 PNG` and `导出全部 PNG` controls.
+Use the CLI PNG mode when you need a deterministic batch render without browser interaction.
 
 ## Add your own template
 

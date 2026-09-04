@@ -337,15 +337,208 @@ export function buildPageHTML(input, index) {
 /** One scrollable HTML preview of every page, for eyeballing a deck before rendering. */
 export function buildDeckPreviewHTML(input) {
   const deck = normalizeDeck(input);
-  const pages = deck.pages.map((p, i) => renderPage(deck, p, i)).join('\n');
+  const theme = DECK_THEMES[deck.theme];
+  const pages = deck.pages
+    .map((page, index) => `
+      <figure class='preview-card' data-page-index='${index}'>
+        <div class='preview-frame'>${renderPage(deck, page, index)}</div>
+        <figcaption>
+          <span>${String(index + 1).padStart(2, '0')} · ${escapeHtml(page.name || 'page')}</span>
+          <button type='button' class='export-one' data-index='${index}'>导出本页 PNG</button>
+        </figcaption>
+      </figure>`)
+    .join('\n');
+  const exportCSS = JSON.stringify(deckCSS(deck, 1)).replace(/</g, '\\u003c');
+  const exportMeta = JSON.stringify({
+    width: deck.width,
+    height: deck.height,
+    title: deck.title,
+    background: theme.bg,
+  }).replace(/</g, '\\u003c');
   return `<!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8">
+<html lang='zh-CN'><head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
 <title>${escapeHtml(deck.title)} · ${deck.pages.length} 页</title>
 <style>${deckCSS(deck, 1)}
-  body { background: #efe9e2; padding: 40px; display: flex; flex-wrap: wrap; gap: 32px; justify-content: center; }
-  .page { border-radius: 28px; box-shadow: 0 18px 44px rgba(60,30,20,.18); flex: none; }
+  :root { color-scheme: light; }
+  html, body { min-height: 100%; }
+  body { background: #efe9e2; padding: 24px; font-family: ${FONT_STACK}; }
+  .preview-shell { max-width: 1180px; margin: 0 auto; }
+  .preview-toolbar {
+    position: sticky; top: 12px; z-index: 10; display: flex; align-items: center;
+    justify-content: space-between; gap: 18px; margin: 0 auto 24px; padding: 14px 18px;
+    background: rgba(255,255,255,.92); border: 2px solid ${theme.ink}; border-radius: 16px;
+    box-shadow: 5px 5px 0 ${theme.ink}; backdrop-filter: blur(10px);
+  }
+  .preview-heading { min-width: 0; }
+  .preview-heading strong { display: block; color: ${theme.ink}; font-size: 20px; line-height: 1.35; }
+  .preview-heading span { display: block; margin-top: 2px; color: ${theme.ink2}; font-size: 13px; }
+  button {
+    border: 2px solid ${theme.ink}; border-radius: 10px; background: ${theme.accent3};
+    color: ${theme.ink}; cursor: pointer; font: 700 14px/1.2 ${FONT_STACK};
+  }
+  button:hover { filter: brightness(.97); transform: translateY(-1px); }
+  button:disabled { cursor: wait; opacity: .55; transform: none; }
+  .export-all { flex: none; padding: 11px 15px; box-shadow: 3px 3px 0 ${theme.ink}; }
+  .deck-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 28px; align-items: start; }
+  .preview-card { min-width: 0; margin: 0; }
+  .preview-frame {
+    position: relative; width: 100%; aspect-ratio: 3 / 4; overflow: hidden;
+    background: ${theme.bg}; border-radius: 18px; box-shadow: 0 18px 44px rgba(60,30,20,.18);
+  }
+  .preview-frame .page {
+    position: absolute; left: 0; top: 0; width: ${DECK_CANVAS.width}px; height: ${DECK_CANVAS.height}px;
+    transform: scale(var(--preview-scale, 1)); transform-origin: top left; border-radius: 0; box-shadow: none;
+  }
+  .preview-card figcaption { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 2px 0; color: ${theme.ink2}; font-size: 13px; }
+  .preview-card figcaption span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .export-one { flex: none; padding: 7px 9px; font-size: 12px; background: ${theme.surface}; }
+  .export-status { position: fixed; left: 50%; bottom: 18px; z-index: 20; transform: translateX(-50%); margin: 0; padding: 8px 13px; border-radius: 999px; background: ${theme.ink}; color: #fff; font-size: 13px; opacity: 0; pointer-events: none; transition: opacity .18s ease; }
+  .export-status.show { opacity: 1; }
+  @media (max-width: 560px) {
+    body { padding: 12px; }
+    .preview-toolbar { top: 8px; align-items: flex-start; padding: 12px; }
+    .preview-heading strong { font-size: 16px; }
+    .preview-heading span { font-size: 12px; }
+    .export-all { padding: 9px 10px; font-size: 12px; }
+  }
 </style></head>
-<body>${pages}</body></html>`;
+<body>
+  <div class='preview-shell'>
+    <header class='preview-toolbar'>
+      <div class='preview-heading'><strong>${escapeHtml(deck.title)}</strong><span>${deck.pages.length} 页 · ${deck.width}×${deck.height} · 3:4</span></div>
+      <button type='button' class='export-all' id='export-all'>导出全部 PNG</button>
+    </header>
+    <main class='deck-grid'>${pages}</main>
+  </div>
+  <p class='export-status' id='export-status' aria-live='polite'></p>
+  <script>
+  const exportCss = ${exportCSS};
+  const exportMeta = ${exportMeta};
+  const designWidth = ${DECK_CANVAS.width};
+  const designHeight = ${DECK_CANVAS.height};
+  const frames = Array.from(document.querySelectorAll('.preview-frame'));
+  const pageNodes = frames.map((frame) => frame.querySelector('.page'));
+  const status = document.getElementById('export-status');
+  const allButton = document.getElementById('export-all');
+  const oneButtons = Array.from(document.querySelectorAll('.export-one'));
+  let busy = false;
+
+  function fitPages() {
+    for (const frame of frames) {
+      const page = frame.querySelector('.page');
+      const scale = frame.clientWidth / designWidth;
+      page.style.setProperty('--preview-scale', String(scale));
+    }
+  }
+  if ('ResizeObserver' in window) new ResizeObserver(fitPages).observe(document.body);
+  window.addEventListener('resize', fitPages);
+  fitPages();
+
+  function setStatus(message) {
+    status.textContent = message;
+    status.classList.toggle('show', Boolean(message));
+  }
+  function setBusy(value) {
+    busy = value;
+    allButton.disabled = value;
+    for (const button of oneButtons) button.disabled = value;
+  }
+  function sleep(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
+  function downloadBlob(blob, filename) {
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    setTimeout(() => { URL.revokeObjectURL(link.href); link.remove(); }, 1000);
+  }
+  function filenameFor(index) {
+    const label = frames[index].parentElement.querySelector('figcaption span').textContent.split('·').slice(1).join('·').trim();
+    const safe = label.replace(/[\s/\\:*?<>|]+/g, '-').slice(0, 40) || 'page';
+    return String(index + 1).padStart(2, '0') + '-' + safe + '.png';
+  }
+  function pageSvg(page) {
+    const clone = page.cloneNode(true);
+    clone.style.transform = 'none';
+    clone.style.position = 'relative';
+    clone.style.left = '0';
+    clone.style.top = '0';
+    clone.style.borderRadius = '0';
+    clone.style.boxShadow = 'none';
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', String(designWidth));
+    svg.setAttribute('height', String(designHeight));
+    svg.setAttribute('viewBox', '0 0 ' + designWidth + ' ' + designHeight);
+    const foreign = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+    foreign.setAttribute('width', '100%');
+    foreign.setAttribute('height', '100%');
+    const wrapper = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+    wrapper.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
+    wrapper.style.width = designWidth + 'px';
+    wrapper.style.height = designHeight + 'px';
+    const style = document.createElementNS('http://www.w3.org/1999/xhtml', 'style');
+    style.textContent = exportCss;
+    wrapper.append(style, clone);
+    foreign.appendChild(wrapper);
+    svg.appendChild(foreign);
+    return new XMLSerializer().serializeToString(svg);
+  }
+  async function renderPng(page) {
+    // A data URL keeps the foreignObject SVG origin-clean in Chrome, so canvas.toBlob can export it.
+    const svgUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(pageSvg(page));
+    const image = new Image();
+    await new Promise((resolve, reject) => {
+      image.onload = resolve;
+      image.onerror = () => reject(new Error('浏览器无法绘制此页面'));
+      image.src = svgUrl;
+    });
+    const canvas = document.createElement('canvas');
+    canvas.width = exportMeta.width;
+    canvas.height = exportMeta.height;
+    const context = canvas.getContext('2d');
+    context.fillStyle = exportMeta.background;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+    return await new Promise((resolve, reject) => canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('PNG 导出失败')), 'image/png'));
+  }
+  async function exportOne(index) {
+    if (busy) return;
+    setBusy(true);
+    setStatus('正在导出第 ' + (index + 1) + ' 页…');
+    try {
+      const blob = await renderPng(pageNodes[index]);
+      downloadBlob(blob, filenameFor(index));
+      setStatus('第 ' + (index + 1) + ' 页已导出');
+    } catch (error) {
+      setStatus(error.message || '导出失败');
+    } finally {
+      setBusy(false);
+      setTimeout(() => setStatus(''), 1800);
+    }
+  }
+  async function exportAll() {
+    if (busy) return;
+    setBusy(true);
+    try {
+      for (let index = 0; index < pageNodes.length; index += 1) {
+        setStatus('正在导出 ' + (index + 1) + ' / ' + pageNodes.length + ' 页…');
+        const blob = await renderPng(pageNodes[index]);
+        downloadBlob(blob, filenameFor(index));
+        await sleep(250);
+      }
+      setStatus('全部 ' + pageNodes.length + ' 页已导出');
+    } catch (error) {
+      setStatus(error.message || '导出失败');
+    } finally {
+      setBusy(false);
+      setTimeout(() => setStatus(''), 2200);
+    }
+  }
+  allButton.addEventListener('click', exportAll);
+  oneButtons.forEach((button) => button.addEventListener('click', () => exportOne(Number(button.dataset.index))));
+  </script>
+</body></html>`;
 }
 
 export function listDeckThemes() {
